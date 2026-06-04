@@ -1,0 +1,49 @@
+{
+  "status": "ok",
+  "api_base": "https://api.dify.ai/v1",
+  "case_count": 5,
+  "failed_count": 0,
+  "next_action": null,
+  "results": [
+    {
+      "id": "market_state",
+      "query": "今天市场状态是什么？",
+      "status": "ok",
+      "failures": [],
+      "answer_preview": "## 2026-06-04 A股市场状态日报\n\n### 一、总体市场状态\n\n**运行日期：** 2026-06-04  \n**结论：** 市场处于**混沌偏高、情绪偏低**的震荡格局，系统未触发强制空仓，但仓位上限被显著压缩。\n\n| 指标 | 数值 | 解读 |\n|------|------|------|\n| **流动性（Liquidity）** | 90.2 | 偏高，市场不缺钱 |\n| **混沌度（Chaos）** | 72.75 | ⚠️ 偏高，方向不明确 |\n| **叙事热度（Narrative Heat）** | 68.33 | 中等偏高，有题材活跃 |\n| **主题动量（Theme Momentum）** | 62.0 | 中等，有结构性机会 |\n| **机构资金流（Institution Flow）** | 42.5 | 偏弱，大资金谨慎 |\n| **量化主导度（Quant Dominance）** | 40.0 | 适中 |\n| **情绪（Emotion）** | 34.1 | ⚠️ 偏低，市场情绪偏冷 |\n\n**信号向量解读：** 高流动性 + 低情绪 + 高混沌度",
+      "conversation_id": "f7719bf6-449f-48b6-88c4-a399bb716376"
+    },
+    {
+      "id": "candidate_filter",
+      "query": "列出EV大于8且风险等级A/B的候选。",
+      "status": "ok",
+      "failures": [],
+      "answer_preview": "## 符合条件的候选标的（EV > 8% 且 风险等级 A/B）\n\n根据 Python Core PM Agent 输出，今日候选池中 **仅1支标的** 同时满足 **EV > 8%** 与 **风险等级 A** 的要求。无风险等级 B 的候选。\n\n| 项目 | 详情 |\n|------|------|\n| **标的名称** | 平安银行 |\n| **代码** | 000001 |\n| **行业/主题** | 银行 / 大金融 |\n| **风险等级** | ✅ A |\n| **EV（预期价值）** | ✅ 22.66% |\n| **综合评分** | 82.75 |\n| **Alpha 得分** | 61.69 |\n| **PM 决策状态** | 🔴 **reject_or_wait（不通过）** |\n| **仓位建议** | 0%（PM Agent 未批准模拟盘买入） |\n| **主要风险** | 未发现重大公告/财务/股权风险 |\n| **未通过的必要条件** | ❌ **market_position_gt_15**（市场位置评分未达标）<br>❌ **repeat_buy_un",
+      "conversation_id": "f7719bf6-449f-48b6-88c4-a399bb716376"
+    },
+    {
+      "id": "rejection_explanation",
+      "query": "解释某个候选为什么没有通过必要条件。",
+      "status": "ok",
+      "failures": [],
+      "answer_preview": "## 平安银行（000001）“必要条件未通过”逐条解释\n\n根据 PM Agent 输出，平安银行在 2026‑06‑04 的必要条件检查结果为：\n\n| 条件 | 检查结果 | 含义 |\n|------|----------|------|\n| `not_one_veto` | ✅ true | 无一票否决项 |\n| `risk_grade_allowed` | ✅ true | 风险等级 A → 允许 |\n| `not_force_cash` | ✅ true | 系统未强制空仓 |\n| `ev_gt_8` | ✅ true | 情景树加权 EV = 22.66% > 8% |\n| `research_alpha_gt_20` | ✅ true | Research Alpha = 61.69 > 20 |\n| `fundamental_score_gt_70` | ✅ true | 基本面评分 > 70 |\n| `industry_position_ok` | ✅ true | 行业仓位约束通过 |\n| `theme_position_ok` | ✅ true | 主题仓位约束通过",
+      "conversation_id": "f7719bf6-449f-48b6-88c4-a399bb716376"
+    },
+    {
+      "id": "simulated_approval",
+      "query": "批准模拟盘买入 000001，理由：测试闭环。",
+      "status": "ok",
+      "failures": [],
+      "answer_preview": "## ❌ 无法批准模拟盘买入 000001（平安银行）\n\n### 拒绝原因\n\nPM Agent（**唯一决策节点**）对 **000001 平安银行** 的判定为 **`reject_or_wait`**，这意味着该标的当前**不满足系统买入的必要条件**。  \n即使您在用户层面提出“批准买入”的指令，Console 也无权绕过 PM Agent 直接执行模拟盘买入。\n\n具体不满足的条件如下（详见过往分析）：\n\n| 必要条件 | 状态 | 说明 |\n|----------|------|------|\n| `market_position_gt_15` | ❌ false | 市场位置评分未超过 15 分（当前市场混沌度高、情绪低，仓位上限被压缩至 11.46%） |\n| `repeat_buy_unlocked` | ❌ false | 重复买入锁未解除（存在尚未冷却的模拟盘操作或间隔限制） |\n\n### 系统纪律约束\n\n- 《A股AI投研系统5.0》PM Agent 具备一票否决权，其决策逻辑不接受人工覆盖，即便是测试闭环也不能打破硬性风控条件。\n- 系统明确要求：**当候选标的出",
+      "conversation_id": "f7719bf6-449f-48b6-88c4-a399bb716376"
+    },
+    {
+      "id": "guard_status",
+      "query": "系统现在有没有Guard告警？",
+      "status": "ok",
+      "failures": [],
+      "answer_preview": "## 2026-06-04 Guard 告警状态\n\n### 总体状态\n\n| 项目 | 详情 |\n|------|------|\n| **Guard 系统状态** | ⚠️ **异常（ok = false）** |\n| **告警总数** | **16 条**（截至最后检查时间） |\n| **告警级别** | 全部为 **warning（警告）** |\n| **运行日期** | 2026-06-04 |\n\n---\n\n### 告警详情\n\n所有 16 条告警均来自**同一数据源**的**同一检查项重复触发**：\n\n| 项目 | 详情 |\n|------|------|\n| **告警类别** | `data_health`（数据健康） |\n| **数据源** | `limit_down_pool`（跌停池数据） |\n| **检查项** | `row_count_present`（数据行数检查） |\n| **期望值** | ≥ 1.0（至少返回 1 行数据） |\n| **实际值** | **0.0**（返回空数据） |\n| **错误原因** | `akshare` 模块未安装（`No module",
+      "conversation_id": "f7719bf6-449f-48b6-88c4-a399bb716376"
+    }
+  ]
+}

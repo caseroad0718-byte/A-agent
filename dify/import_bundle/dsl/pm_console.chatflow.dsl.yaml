@@ -1,0 +1,523 @@
+{
+  "version": "0.6.0",
+  "kind": "app",
+  "app": {
+    "name": "A股AI投研 PM Console",
+    "mode": "advanced-chat",
+    "icon": "📈",
+    "icon_type": "emoji",
+    "icon_background": "#D5F5F6",
+    "description": "A股AI投研系统5.0控制台。绑定知识库和Custom Tool后用于日报问答、候选解释、审批记录、复盘和Guard查询。",
+    "use_icon_as_answer_icon": false
+  },
+  "workflow": {
+    "conversation_variables": [],
+    "environment_variables": [],
+    "features": {
+      "file_upload": {
+        "enabled": false
+      },
+      "opening_statement": "A股AI投研 PM Console 已就绪。",
+      "retriever_resource": {
+        "enabled": true
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "start_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 30,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 30,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "start",
+            "title": "Start",
+            "desc": "",
+            "selected": false,
+            "variables": []
+          }
+        },
+        {
+          "id": "run_pipeline",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 334,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 334,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "runPipeline",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "runPipeline",
+            "tool_label": "runPipeline",
+            "tool_description": "A Stock Python Core operation: runPipeline",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "today"
+              }
+            }
+          }
+        },
+        {
+          "id": "get_daily_report",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 638,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 638,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getDailyReport",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getDailyReport",
+            "tool_label": "getDailyReport",
+            "tool_description": "A Stock Python Core operation: getDailyReport",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "today"
+              }
+            }
+          }
+        },
+        {
+          "id": "get_candidates",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 942,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 942,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getCandidates",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getCandidates",
+            "tool_label": "getCandidates",
+            "tool_description": "A Stock Python Core operation: getCandidates",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "today"
+              },
+              "min_ev": {
+                "type": "mixed",
+                "value": "8"
+              },
+              "risk_allowed": {
+                "type": "mixed",
+                "value": "A,B"
+              }
+            }
+          }
+        },
+        {
+          "id": "get_review",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 1246,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 1246,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getReview",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getReview",
+            "tool_label": "getReview",
+            "tool_description": "A Stock Python Core operation: getReview",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "period": {
+                "type": "mixed",
+                "value": "all_closed_trades"
+              }
+            }
+          }
+        },
+        {
+          "id": "get_guard_status",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 1550,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 1550,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getGuardStatus",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getGuardStatus",
+            "tool_label": "getGuardStatus",
+            "tool_description": "A Stock Python Core operation: getGuardStatus",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "today"
+              }
+            }
+          }
+        },
+        {
+          "id": "pm_console_llm",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 1854,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 1854,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "llm",
+            "title": "PM Console",
+            "desc": "",
+            "selected": false,
+            "model": {
+              "provider": "deepseek",
+              "name": "deepseek-v4-pro",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.2
+              }
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "# Dify Chatflow System Prompt: A股AI投研 PM Console\n\n你是「A股AI投研系统5.0」的 PM Console。你的职责是解释系统输出、帮助用户执行纪律、记录模拟盘批准/否决和复盘原因。\n\n硬性边界：\n- 仅供学习研究参考，不构成投资建议。\n- 只能调用外部 Python Core 的工具接口读取系统输出或写入模拟盘记录。\n- 可以调用 Dify 内的 Hermes Agent 交互工具做文本、skill、图片、本机上下文会话和人工确认桥接，但 Hermes 只提供上下文和交互，不是交易决策节点。\n- 可以调用 Dify 知识库、网页抓取、Google/Jina、GitHub、时间、代码解释器和数据分析工具补充背景；所有外部信息必须标注为“补充背景/待系统验证”，不得覆盖 Python Core 的 PM/Risk/Guard 输出。\n- 不允许承诺收益，不允许说“必涨/必中/确定买入”。\n- 不允许直接下真实订单；`approveDecision` 只代表模拟盘批准。\n- 只能写模拟盘，不允许真实下单。\n- PM Agent 是唯一决策节点；你不能绕过 PM Agent 自行生成买卖建议。\n- 看到 D 级风险、一票否决、强制空仓原因、EV<=8%、Research Alpha<=20、基本面评分<=70 时，必须明确说明“不满足系统买入必要条件”。\n- D级风险、一票否决、强制空仓、EV<=8时不得建议买入。\n\n常用工具调用策略：\n- 用户问“今天日报/市场状态/候选”：先调用 `getDailyReport` 或 `getCandidates`。\n- 用户问“为什么是这个候选”：读取候选的 checks、scenario_tree、risk_reasons、alpha_score、ev_pct，按必要条件逐项解释。\n- 用户说“批准/同意模拟买入某股票”：先复述标的、仓位、EV、情景C失效条件、兜底-8%止损，再调用 `approveDecision`。\n- 用户说“否决/不买”：调用 `approveDecision`，`approved=false`，reason 记录用户理由。\n- 用户说“平仓/退出”：要求用户给出模拟退出价和退出原因；齐全后调用 `exitTrade`。\n- 用户问“系统是否正常”：调用 `getGuardStatus`。\n- 用户问“复盘”：调用 `getReview`。\n- 用户上传图片、截图、表格，或要求你和本机 Hermes Agent 协同分析：先调用 Hermes Agent 交互工具提取可用上下文，再回到 Python Core 工具核对候选、风险和 PM 计划。\n- 用户要求联网查新闻、公告、政策、研报背景：可以调用网页抓取、Google/Jina 或 GitHub 等 Dify 工具，但必须把结果作为 Research 背景，不得直接转化为买入/卖出结论。\n- 用户要求保存个人观察、后续待办、人工确认结果：优先让 Hermes 记录交互上下文，再在必要时通过 Python Core 写入 watchlist 或模拟盘审批记录。\n\nHermes 协同规则：\n- Hermes 可以帮你和用户的本机环境交互、理解图片/文本、调用 skill、做上下文会话和人工确认。\n- Hermes 不能替代 Data/Signal/Research/Risk/PM/Execution/Review/Meta-Learning/Guard 任一核心 Agent 的标准 JSON 输出。\n- Hermes 给出的观点必须写成“Hermes 补充观察”，并和 PM Agent 输出分开。\n- 当 Hermes 观察与 PM/Risk/Guard 冲突时，必须服从 PM/Risk/Guard，尤其是 D 级风险、一票否决、强制空仓、EV<=8 或模拟盘纪律。\n\n输出格式：\n- 先给结论，再给证据。\n- 对候选标的用：系统状态、必要条件、情景树EV、风险项、纪律提醒。\n- 对日报用：市场状态、仓位上限、持仓监控、次日候选、Guard状态。\n- 若使用 Hermes 或联网工具，新增一段“补充背景”，列出来源和不确定性。\n- 每次涉及交易动作都用“模拟盘”四个字。\n- 每次回答末尾都必须包含：“仅供学习研究参考，不构成投资建议。当前系统只用于模拟盘。”\n- 每次解释候选、拒绝、批准、否决或买卖纪律时，都必须明确写出“PM Agent 是唯一决策节点”。\n- 不要输出 `<think>`、隐藏推理、内部链路、模型思考过程或 XML 风格伪工具标签；如果工具尚未绑定，只说明“当前 Dify 工具未完成绑定”，不要伪造工具调用结果。\n"
+              },
+              {
+                "role": "user",
+                "text": "用户问题：{{#sys.query#}}\n\n附件：{{#sys.files#}}\n\n已实时调用 Python Core 只读工具，除非用户明确要求模拟盘批准/否决，否则不得写入任何交易记录。\n\nrunPipeline: {{#run_pipeline.text#}}\n\ngetDailyReport: {{#get_daily_report.text#}}\n\ngetCandidates: {{#get_candidates.text#}}\n\ngetReview: {{#get_review.text#}}\n\ngetGuardStatus: {{#get_guard_status.text#}}\n\n请只基于以上工具结果回答用户；如果某项工具结果为空或报错，明确说明该项不可用，不要编造。"
+              }
+            ],
+            "vision": {
+              "enabled": false,
+              "configs": {
+                "variable_selector": []
+              }
+            },
+            "memory": {
+              "enabled": false,
+              "window": {
+                "enabled": false,
+                "size": 50
+              }
+            },
+            "context": {
+              "enabled": false,
+              "variable_selector": []
+            },
+            "structured_output": {
+              "enabled": false
+            },
+            "retry_config": {
+              "enabled": false,
+              "max_retries": 1,
+              "retry_interval": 1000,
+              "exponential_backoff": {
+                "enabled": false,
+                "multiplier": 2,
+                "max_interval": 10000
+              }
+            }
+          }
+        },
+        {
+          "id": "strip_reasoning",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 2158,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 2158,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "code",
+            "title": "Strip Reasoning Tags",
+            "desc": "",
+            "selected": false,
+            "variables": [
+              {
+                "variable": "raw_text",
+                "value_selector": [
+                  "pm_console_llm",
+                  "text"
+                ]
+              }
+            ],
+            "code_language": "python3",
+            "code": "import re\n\ndef main(raw_text: str) -> dict:\n    text = raw_text or \"\"\n    text = re.sub(r\"<think>.*?</think>\", \"\", text, flags=re.I | re.S)\n    text = re.sub(r\"</?think>\", \"\", text, flags=re.I)\n    return {\"answer\": text.strip()}\n",
+            "outputs": {
+              "answer": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": "answer_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 2462,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 2462,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "answer",
+            "title": "Answer",
+            "desc": "",
+            "selected": false,
+            "answer": "{{#strip_reasoning.answer#}}",
+            "variables": []
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "start_node-to-run_pipeline",
+          "source": "start_node",
+          "sourceHandle": "source",
+          "target": "run_pipeline",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "start",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "run_pipeline-to-get_daily_report",
+          "source": "run_pipeline",
+          "sourceHandle": "source",
+          "target": "get_daily_report",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_daily_report-to-get_candidates",
+          "source": "get_daily_report",
+          "sourceHandle": "source",
+          "target": "get_candidates",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_candidates-to-get_review",
+          "source": "get_candidates",
+          "sourceHandle": "source",
+          "target": "get_review",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_review-to-get_guard_status",
+          "source": "get_review",
+          "sourceHandle": "source",
+          "target": "get_guard_status",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_guard_status-to-pm_console_llm",
+          "source": "get_guard_status",
+          "sourceHandle": "source",
+          "target": "pm_console_llm",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "llm"
+          }
+        },
+        {
+          "id": "pm_console_llm-to-strip_reasoning",
+          "source": "pm_console_llm",
+          "sourceHandle": "source",
+          "target": "strip_reasoning",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "code"
+          }
+        },
+        {
+          "id": "strip_reasoning-to-answer_node",
+          "source": "strip_reasoning",
+          "sourceHandle": "source",
+          "target": "answer_node",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "code",
+            "targetType": "answer"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 0.7
+      }
+    }
+  },
+  "dependencies": []
+}

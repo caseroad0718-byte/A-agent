@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: a-stock-system
+    runtime: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python api_server.py --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: A_STOCK_TRADING_ENABLED
+        value: "false"
+      - key: DEEPSEEK_BASE_URL
+        value: "https://api.deepseek.com"
+      - key: DEEPSEEK_MODEL
+        value: "deepseek-v4-pro"
+      - key: DEEPSEEK_MODEL_STRONG
+        value: "deepseek-v4-pro"
+      - key: DEEPSEEK_MODEL_FAST
+        value: "deepseek-v4-flash"
+      - key: A_STOCK_API_KEY
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: TUSHARE_TOKEN
+        sync: false
+      - key: SERVERCHAN_SENDKEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false

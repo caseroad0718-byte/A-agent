@@ -1,0 +1,96 @@
+{
+  "status": "ok",
+  "api_base": "https://api.dify.ai/v1",
+  "key_accepted": true,
+  "app_not_published": false,
+  "expected_name": "A股AI投研 PM Console",
+  "actual_name": "A股AI投研 PM Console",
+  "app_name_mismatch": false,
+  "probes": [
+    {
+      "path": "/info",
+      "status_code": 200,
+      "ok": true,
+      "keys": [
+        "author_name",
+        "description",
+        "mode",
+        "name",
+        "tags"
+      ],
+      "name": "A股AI投研 PM Console",
+      "description": "A股AI投研系统5.0 PM Console，用于日报问答、候选解释、模拟盘审批、复盘和Guard查询。",
+      "mode": "advanced-chat"
+    },
+    {
+      "path": "/parameters",
+      "status_code": 200,
+      "ok": true,
+      "keys": [
+        "annotation_reply",
+        "file_upload",
+        "more_like_this",
+        "opening_statement",
+        "retriever_resource",
+        "sensitive_word_avoidance",
+        "speech_to_text",
+        "suggested_questions",
+        "suggested_questions_after_answer",
+        "system_parameters",
+        "text_to_speech",
+        "user_input_form"
+      ],
+      "opening_statement": "A股AI投研 PM Console 已就绪。",
+      "suggested_questions": [],
+      "user_input_form_count": 0
+    },
+    {
+      "path": "/site",
+      "status_code": 200,
+      "ok": true,
+      "keys": [
+        "chat_color_theme",
+        "chat_color_theme_inverted",
+        "copyright",
+        "custom_disclaimer",
+        "default_language",
+        "description",
+        "icon",
+        "icon_background",
+        "icon_type",
+        "icon_url",
+        "privacy_policy",
+        "show_workflow_steps",
+        "title",
+        "use_icon_as_answer_icon"
+      ],
+      "description": null
+    },
+    {
+      "path": "/meta",
+      "status_code": 200,
+      "ok": true,
+      "keys": [
+        "tool_icons"
+      ]
+    },
+    {
+      "path": "/chat-messages",
+      "status_code": 200,
+      "ok": true,
+      "keys": [
+        "answer",
+        "conversation_id",
+        "created_at",
+        "event",
+        "id",
+        "message_id",
+        "metadata",
+        "mode",
+        "task_id"
+      ],
+      "mode": "advanced-chat"
+    }
+  ],
+  "next_action": null
+}

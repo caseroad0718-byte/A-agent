@@ -1,0 +1,330 @@
+{
+  "version": "0.6.0",
+  "kind": "app",
+  "app": {
+    "name": "Quarterly Meta-Learning Review",
+    "mode": "workflow",
+    "icon": "📈",
+    "icon_type": "emoji",
+    "icon_background": "#D5F5F6",
+    "description": "季度权重与市场体制复核，体制层必须人工确认。",
+    "use_icon_as_answer_icon": false
+  },
+  "workflow": {
+    "conversation_variables": [],
+    "environment_variables": [],
+    "features": {
+      "file_upload": {
+        "enabled": false
+      },
+      "opening_statement": "",
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "start_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 30,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 30,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "start",
+            "title": "Start",
+            "desc": "",
+            "selected": false,
+            "variables": [
+              {
+                "variable": "date",
+                "label": "date",
+                "type": "text-input",
+                "required": false,
+                "max_length": null,
+                "options": []
+              },
+              {
+                "variable": "period",
+                "label": "period",
+                "type": "text-input",
+                "required": false,
+                "max_length": null,
+                "options": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "run_pipeline",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 334,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 334,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "runPipeline",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "runPipeline",
+            "tool_label": "runPipeline",
+            "tool_description": "A Stock Python Core operation: runPipeline",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "{{#start_node.date#}}"
+              }
+            }
+          }
+        },
+        {
+          "id": "get_review",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 638,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 638,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getReview",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getReview",
+            "tool_label": "getReview",
+            "tool_description": "A Stock Python Core operation: getReview",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "period": {
+                "type": "mixed",
+                "value": "{{#start_node.period#}}"
+              }
+            }
+          }
+        },
+        {
+          "id": "compose_meta_review",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 942,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 942,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "llm",
+            "title": "compose_meta_review",
+            "desc": "",
+            "selected": false,
+            "model": {
+              "provider": "deepseek",
+              "name": "deepseek-v4-pro",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.2
+              }
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "# Quarterly Meta-Learning Review Prompt\n\n你是 A股AI投研系统5.0 的季度 Meta-Learning 复核器。你的任务是解释是否需要调整参数，而不是自动追求更高回测收益。\n\n如果 Dify 流程中加入 Hermes Agent 交互工具，Hermes 可以帮助收集人工制度判断、用户本机笔记、截图和上下文会话，但不得自动确认体制层，也不得直接写入参数更新。\n\n必须分三层输出：\n- 信号层：哪个因子与收益更相关，单因子权重上限 35%。\n- 风格层：不同市场环境下哪类股票胜率更高；必须满足 6 个月以上数据。\n- 体制层：政策市/资金市/业绩市只能提出判断依据，必须人工确认。\n\n更新规则：\n- 每周五只允许生成诊断日志。\n- 月度才允许第一层参数更新。\n- 新参数在最近 180 天假设胜率提升小于 5% 时保留旧参数。\n- 新参数更差时不更新，并记录“本期信号可能是特殊市场环境”。\n\n硬性边界：\n- 仅供学习研究参考，不构成投资建议。\n- 不允许把过拟合结果写成确定结论。\n- 不允许自动确认体制层。\n- Hermes 或其他外部工具只能提供“人工确认候选依据”，最终参数更新仍必须遵守 Meta-Learning Agent 的月度门控和人工确认规则。\n"
+              },
+              {
+                "role": "user",
+                "text": "请根据上游工具返回结果生成最终报告。\n\n输入变量：date={{#start_node.date#}}, period={{#start_node.period#}}\n\n工具结果：\n\nrunPipeline: {{#run_pipeline.text#}}\ngetReview: {{#get_review.text#}}"
+              }
+            ],
+            "vision": {
+              "enabled": false,
+              "configs": {
+                "variable_selector": []
+              }
+            },
+            "memory": {
+              "enabled": false,
+              "window": {
+                "enabled": false,
+                "size": 50
+              }
+            },
+            "context": {
+              "enabled": false,
+              "variable_selector": []
+            },
+            "structured_output": {
+              "enabled": false
+            },
+            "retry_config": {
+              "enabled": false,
+              "max_retries": 1,
+              "retry_interval": 1000,
+              "exponential_backoff": {
+                "enabled": false,
+                "multiplier": 2,
+                "max_interval": 10000
+              }
+            }
+          }
+        },
+        {
+          "id": "end_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 1246,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 1246,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "end",
+            "title": "End",
+            "desc": "",
+            "selected": false,
+            "outputs": [
+              {
+                "variable": "answer_markdown",
+                "value_selector": [
+                  "compose_meta_review",
+                  "text"
+                ],
+                "value_type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "start_node-to-run_pipeline",
+          "source": "start_node",
+          "sourceHandle": "source",
+          "target": "run_pipeline",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "start",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "run_pipeline-to-get_review",
+          "source": "run_pipeline",
+          "sourceHandle": "source",
+          "target": "get_review",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_review-to-compose_meta_review",
+          "source": "get_review",
+          "sourceHandle": "source",
+          "target": "compose_meta_review",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "llm"
+          }
+        },
+        {
+          "id": "compose_meta_review-to-end_node",
+          "source": "compose_meta_review",
+          "sourceHandle": "source",
+          "target": "end_node",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "end"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 0.7
+      }
+    }
+  },
+  "dependencies": []
+}

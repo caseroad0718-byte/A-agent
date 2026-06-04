@@ -1,0 +1,31 @@
+{
+  "updated_at": "2026-06-03",
+  "positions": [],
+  "watchlist": [
+    {
+      "symbol": "000001",
+      "name": "平安银行",
+      "industry": "银行",
+      "theme": "大金融",
+      "market_cap_bucket": "large",
+      "is_follower": false
+    },
+    {
+      "symbol": "300750",
+      "name": "宁德时代",
+      "industry": "电力设备",
+      "theme": "新能源",
+      "market_cap_bucket": "large",
+      "is_follower": false
+    },
+    {
+      "symbol": "688256",
+      "name": "寒武纪",
+      "industry": "半导体",
+      "theme": "AI算力",
+      "market_cap_bucket": "mid",
+      "is_follower": false
+    }
+  ]
+}
+

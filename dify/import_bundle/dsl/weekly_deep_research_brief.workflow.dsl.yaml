@@ -1,0 +1,329 @@
+{
+  "version": "0.6.0",
+  "kind": "app",
+  "app": {
+    "name": "Weekly Deep Research Brief",
+    "mode": "workflow",
+    "icon": "📈",
+    "icon_type": "emoji",
+    "icon_background": "#D5F5F6",
+    "description": "周末产业深度、反向扫描和被忽视机会备忘。",
+    "use_icon_as_answer_icon": false
+  },
+  "workflow": {
+    "conversation_variables": [],
+    "environment_variables": [],
+    "features": {
+      "file_upload": {
+        "enabled": false
+      },
+      "opening_statement": "",
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "start_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 30,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 30,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "start",
+            "title": "Start",
+            "desc": "",
+            "selected": false,
+            "variables": [
+              {
+                "variable": "theme",
+                "label": "theme",
+                "type": "text-input",
+                "required": false,
+                "max_length": null,
+                "options": []
+              },
+              {
+                "variable": "watchlist_scope",
+                "label": "watchlist_scope",
+                "type": "text-input",
+                "required": false,
+                "max_length": null,
+                "options": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "knowledge_retrieval",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 334,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 334,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "knowledge-retrieval",
+            "title": "Knowledge Retrieval",
+            "desc": "Bind this node to knowledge base a_stock_research_kb after import.",
+            "selected": false,
+            "query_variable_selector": [
+              "start_node",
+              "theme"
+            ],
+            "query_attachment_selector": [],
+            "dataset_ids": [],
+            "retrieval_mode": "multiple",
+            "multiple_retrieval_config": {
+              "top_k": 5,
+              "score_threshold": null,
+              "reranking_enable": false
+            },
+            "single_retrieval_config": null
+          }
+        },
+        {
+          "id": "run_research",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 638,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 638,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "runResearch",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "runResearch",
+            "tool_label": "runResearch",
+            "tool_description": "A Stock Python Core operation: runResearch",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "today"
+              }
+            }
+          }
+        },
+        {
+          "id": "compose_weekly_brief",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 942,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 942,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "llm",
+            "title": "compose_weekly_brief",
+            "desc": "",
+            "selected": false,
+            "model": {
+              "provider": "deepseek",
+              "name": "deepseek-v4-pro",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.2
+              }
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "# Weekly Deep Research Brief Prompt\n\n你是 A股AI投研系统5.0 的周度研究整理器。你的任务是把知识库上下文与 Research Agent 输出整理成研究备忘，不输出交易指令。\n\n如果 Dify 流程中加入 Hermes Agent 交互工具，可以让 Hermes 帮助处理用户本机文本、图片、skill 结果、人工观察和上下文会话。Hermes 输出必须单列为“Hermes 补充观察”，不得替代 Research Agent 的 Logic/Narrative/Alpha 标准输出。\n\n必须覆盖：\n- 本周关注主题或股票池范围。\n- Logic 侧：成长性、质量、估值、催化剂明确度。\n- Narrative 侧：叙事强度、叙事一致性、叙事新鲜度、叙事拥挤风险。\n- 被忽视机会：只能写“值得继续研究”，不得写“买入”。\n- 反向扫描：指出市场共识可能过热或逻辑薄弱处。\n- 下周观察清单：需要等待的数据、公告、政策、资金验证。\n\n硬性边界：\n- 仅供学习研究参考，不构成投资建议。\n- 不允许绕过 PM Agent 直接给买卖建议。\n- 任何候选交易必须回到 PM Agent 的情景树、EV、Risk 一票否决和仓位公式。\n- 网页抓取、Google、Jina、GitHub、Dify 知识库、代码解释器、数据分析和 Hermes 的内容只能作为研究背景；进入交易候选前必须回到 Python Core。\n"
+              },
+              {
+                "role": "user",
+                "text": "请根据上游工具返回结果生成最终报告。\n\n输入变量：theme={{#start_node.theme#}}, watchlist_scope={{#start_node.watchlist_scope#}}\n\n工具结果：\n\nKnowledge context: {{#knowledge_retrieval.result#}}\nrunResearch: {{#run_research.text#}}"
+              }
+            ],
+            "vision": {
+              "enabled": false,
+              "configs": {
+                "variable_selector": []
+              }
+            },
+            "memory": {
+              "enabled": false,
+              "window": {
+                "enabled": false,
+                "size": 50
+              }
+            },
+            "context": {
+              "enabled": false,
+              "variable_selector": []
+            },
+            "structured_output": {
+              "enabled": false
+            },
+            "retry_config": {
+              "enabled": false,
+              "max_retries": 1,
+              "retry_interval": 1000,
+              "exponential_backoff": {
+                "enabled": false,
+                "multiplier": 2,
+                "max_interval": 10000
+              }
+            }
+          }
+        },
+        {
+          "id": "end_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 1246,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 1246,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "end",
+            "title": "End",
+            "desc": "",
+            "selected": false,
+            "outputs": [
+              {
+                "variable": "answer_markdown",
+                "value_selector": [
+                  "compose_weekly_brief",
+                  "text"
+                ],
+                "value_type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "start_node-to-knowledge_retrieval",
+          "source": "start_node",
+          "sourceHandle": "source",
+          "target": "knowledge_retrieval",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "start",
+            "targetType": "knowledge-retrieval"
+          }
+        },
+        {
+          "id": "knowledge_retrieval-to-run_research",
+          "source": "knowledge_retrieval",
+          "sourceHandle": "source",
+          "target": "run_research",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "knowledge-retrieval",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "run_research-to-compose_weekly_brief",
+          "source": "run_research",
+          "sourceHandle": "source",
+          "target": "compose_weekly_brief",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "llm"
+          }
+        },
+        {
+          "id": "compose_weekly_brief-to-end_node",
+          "source": "compose_weekly_brief",
+          "sourceHandle": "source",
+          "target": "end_node",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "end"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 0.7
+      }
+    }
+  },
+  "dependencies": []
+}

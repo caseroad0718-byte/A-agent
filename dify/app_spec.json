@@ -1,0 +1,192 @@
+{
+  "schema": "a_stock_dify_app_spec.v1",
+  "system_name": "A股AI投研系统5.0",
+  "mode": "simulation_only",
+  "model_provider": {
+    "provider": "DeepSeek",
+    "fallback_provider": "OpenAI-compatible",
+    "base_url": "https://api.deepseek.com",
+    "strong_model": "deepseek-v4-pro",
+    "fast_model": "deepseek-v4-flash",
+    "pm_console_model": "deepseek-v4-pro",
+    "api_key_env": "DEEPSEEK_API_KEY"
+  },
+  "custom_tool": {
+    "name": "A Stock AI Research System 5.0 API",
+    "schema_file": "dify/custom_tool_openapi.yaml",
+    "dynamic_schema_path": "/openapi.yaml",
+    "auth": {
+      "type": "bearer",
+      "token_env": "A_STOCK_API_KEY"
+    },
+    "required_operations": [
+      "health",
+      "runPipeline",
+      "getDailyReport",
+      "getMarketState",
+      "getCandidates",
+      "approveDecision",
+      "exitTrade",
+      "getReview",
+      "getGuardStatus",
+      "upsertWatchlistItem",
+      "runResearch"
+    ],
+    "optional_operations": [
+      "hermesObserve"
+    ]
+  },
+  "dify_native_tools": {
+    "recommended_enabled_tools": [
+      {
+        "name": "Hermes Agent 交互",
+        "provider": "sawyer-shi / hermes_agent",
+        "role": "本机文本、skill、图片、上下文会话和人工确认桥接",
+        "decision_boundary": "不得替代 PM/Risk/Guard，不得直接生成买卖决策"
+      },
+      {
+        "name": "Dify 知识库",
+        "provider": "leslie2046 / dify_knowledge",
+        "role": "检索 a_stock_research_kb 的方案、SOP、参数、日报和复盘材料"
+      },
+      {
+        "name": "网页抓取",
+        "provider": "webscraper",
+        "role": "抓取公告、政策、公司网页等公开背景"
+      },
+      {
+        "name": "Google",
+        "provider": "langgenius / google",
+        "role": "搜索公开新闻、政策、公司背景"
+      },
+      {
+        "name": "Jina AI",
+        "provider": "langgenius / jina_tool",
+        "role": "补充搜索和网页内容抽取"
+      },
+      {
+        "name": "GitHub",
+        "provider": "langgenius / github",
+        "role": "读取本系统仓库、参数、脚本和运行记录"
+      },
+      {
+        "name": "代码解释器",
+        "provider": "code",
+        "role": "轻量 JSON/表格格式化，不做 akshare、SQLite、网络抓取或回测"
+      },
+      {
+        "name": "数据分析",
+        "provider": "digitforce / data_analysis",
+        "role": "只用于解释已导出的表格/报告，不替代 Python Core 计算"
+      },
+      {
+        "name": "时间",
+        "provider": "time",
+        "role": "确认北京时间、交易日调度和日报时间"
+      }
+    ],
+    "hermes_integration_file": "dify/HERMES_AGENT_INTEGRATION.md"
+  },
+  "knowledge_base": {
+    "name": "a_stock_research_kb",
+    "provision_script": "scripts/provision_dify_knowledge.py",
+    "api_env": {
+      "api_base": "DIFY_API_BASE",
+      "api_key": "DIFY_KNOWLEDGE_API_KEY",
+      "dataset_id": "DIFY_DATASET_ID"
+    },
+    "required_files": [
+      "A股AI投研系统5.0完整方案.pdf",
+      "dify/knowledge_base_seed.md",
+      "dify/pm_console_prompt.md",
+      "dify/workflow_blueprints.md",
+      "dify/HERMES_AGENT_INTEGRATION.md",
+      "config/parameters.json",
+      "config/watchlist.json",
+      "reports/daily/*.md"
+    ]
+  },
+  "chatflow": {
+    "name": "A股AI投研 PM Console",
+    "type": "chatflow",
+    "system_prompt_file": "dify/pm_console_prompt.md",
+    "acceptance_cases_file": "dify/app_acceptance_cases.json",
+    "acceptance_script": "scripts/accept_dify_app_api.py",
+    "knowledge_base": "a_stock_research_kb",
+    "enabled_operations": [
+      "getDailyReport",
+      "getCandidates",
+      "getMarketState",
+      "approveDecision",
+      "exitTrade",
+      "getReview",
+      "getGuardStatus"
+    ],
+    "recommended_native_tools": [
+      "Hermes Agent 交互",
+      "Dify 知识库",
+      "网页抓取",
+      "Google",
+      "Jina AI",
+      "GitHub",
+      "代码解释器",
+      "数据分析",
+      "时间"
+    ],
+    "required_safety_rules": [
+      "仅供学习研究参考，不构成投资建议",
+      "只能写模拟盘，不允许真实下单",
+      "PM Agent 是唯一决策节点",
+      "D级风险、一票否决、强制空仓、EV<=8时不得建议买入"
+    ],
+    "acceptance_prompts": [
+      "今天市场状态是什么？",
+      "列出EV大于8且风险等级A/B的候选。",
+      "解释某个候选为什么没有通过必要条件。",
+      "批准模拟盘买入 000001，理由：测试闭环。",
+      "系统现在有没有Guard告警？"
+    ]
+  },
+  "workflows": [
+    {
+      "name": "Daily Report Composer",
+      "type": "workflow",
+      "input_variables": ["date"],
+      "tool_sequence": ["runPipeline", "getDailyReport"],
+      "output": "日报摘要、候选检查、模拟盘纪律提醒"
+    },
+    {
+      "name": "Weekly Deep Research Brief",
+      "type": "workflow",
+      "input_variables": ["theme", "watchlist_scope"],
+      "tool_sequence": ["runResearch"],
+      "output": "被忽视机会、产业深度、反向扫描，不写交易指令"
+    },
+    {
+      "name": "Monthly Review Composer",
+      "type": "workflow",
+      "input_variables": ["period"],
+      "tool_sequence": ["getReview"],
+      "output": "胜率、最大亏损共性、纪律执行、Agent贡献归因"
+    },
+    {
+      "name": "Quarterly Meta-Learning Review",
+      "type": "workflow",
+      "input_variables": ["date", "period"],
+      "tool_sequence": ["runPipeline", "getReview"],
+      "output": "权重调整建议，体制层必须人工确认"
+    }
+  ],
+  "workflow_node_specs_file": "dify/workflow_node_specs.json",
+  "post_import_checks": [
+    "Knowledge base contains the original PDF and project prompt/config files",
+    "Dify App API acceptance cases pass through scripts/accept_dify_app_api.py",
+    "Custom Tool health succeeds",
+    "runPipeline succeeds for today",
+    "getDailyReport returns JSON",
+    "getCandidates returns PM candidates",
+    "approveDecision creates simulated trade only",
+    "exitTrade records exit reason and pnl_pct",
+    "getGuardStatus returns alerts or ok"
+  ]
+}

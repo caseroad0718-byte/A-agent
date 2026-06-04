@@ -1,0 +1,206 @@
+{
+  "schema": "a_stock_pdf_requirement_matrix.v1",
+  "source_pdf": "A股AI投研系统5.0完整方案.pdf",
+  "disclaimer": "仅供学习研究参考，不构成投资建议。",
+  "requirements": [
+    {
+      "id": "arch_9_agents",
+      "section": "第二章 系统架构总览",
+      "requirement": "系统由 Data、Signal、Research、Risk、PM、Execution、Review、Meta-Learning、Guard 9 个 Agent 组成，职责单一，PM Agent 唯一有决策权。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "file_exists", "path": "agents/data_agent.py"},
+        {"type": "file_exists", "path": "agents/signal_agent.py"},
+        {"type": "file_exists", "path": "agents/research_agent.py"},
+        {"type": "file_exists", "path": "agents/risk_agent.py"},
+        {"type": "file_exists", "path": "agents/pm_agent.py"},
+        {"type": "file_exists", "path": "agents/execution_agent.py"},
+        {"type": "file_exists", "path": "agents/review_agent.py"},
+        {"type": "file_exists", "path": "agents/meta_learning_agent.py"},
+        {"type": "file_exists", "path": "agents/guard_agent.py"},
+        {"type": "contains", "path": "dify/pm_console_prompt.md", "text": "PM Agent 是唯一决策节点"}
+      ]
+    },
+    {
+      "id": "data_agent_sources_and_guardrail",
+      "section": "3.1 Data Agent",
+      "requirement": "Data Agent 只采集不分析，单源失败不阻断，脏数据不向下游传递；默认 akshare，Tushare 可选。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/data_agent.py", "text": "single_source_failures"},
+        {"type": "contains", "path": "agents/data_agent.py", "text": "akshare"},
+        {"type": "file_exists", "path": "config/data_sources.json"},
+        {"type": "contains", "path": "config/data_sources.json", "text": "lhb_detail"},
+        {"type": "contains", "path": "config/data_sources.json", "text": "northbound_flow"},
+        {"type": "contains", "path": "config/data_sources.json", "text": "minute_bars_watchlist"},
+        {"type": "contains", "path": "database/schema.sql", "text": "data_quality_checks"},
+        {"type": "contains", "path": "config/parameters.json", "text": "TUSHARE_TOKEN"}
+      ]
+    },
+    {
+      "id": "signal_agent_7d_position_formula",
+      "section": "3.2 Signal Agent",
+      "requirement": "Signal Agent 输出 7 维连续评分，并按公式计算 max_position。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "emotion"},
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "theme_momentum"},
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "institution_flow"},
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "quant_dominance"},
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "liquidity"},
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "chaos"},
+        {"type": "contains", "path": "agents/signal_agent.py", "text": "narrative_heat"},
+        {"type": "contains", "path": "core/formulas.py", "text": "calculate_max_position_pct"},
+        {"type": "contains", "path": "tests/test_formulas.py", "text": "test_max_position_formula_matches_plan"}
+      ]
+    },
+    {
+      "id": "research_logic_narrative_alpha",
+      "section": "3.3 Research Agent",
+      "requirement": "Research Agent 包含 Logic 与 Narrative 双子模块，输出 Alpha，避免逻辑闭环幻觉。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/research_agent.py", "text": "logic"},
+        {"type": "contains", "path": "agents/research_agent.py", "text": "narrative"},
+        {"type": "contains", "path": "core/formulas.py", "text": "calculate_alpha_score"},
+        {"type": "contains", "path": "tests/test_formulas.py", "text": "test_alpha_rewards_fresh_uncrowded_logic"}
+      ]
+    },
+    {
+      "id": "risk_agent_one_veto",
+      "section": "3.4 Risk Agent",
+      "requirement": "Risk Agent 专门找理由不买，支持 A-D 风险等级和一票否决。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/risk_agent.py", "text": "one_veto"},
+        {"type": "contains", "path": "agents/risk_agent.py", "text": "risk_grade"},
+        {"type": "contains", "path": "tests/test_pipeline.py", "text": "test_risk_one_veto_blocks_buy"}
+      ]
+    },
+    {
+      "id": "pm_agent_scenario_ev_portfolio",
+      "section": "3.5 PM Agent",
+      "requirement": "PM Agent 生成三情景树、EV、综合评分和组合层约束；EV>8 才进入候选。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/pm_agent.py", "text": "scenario_tree"},
+        {"type": "contains", "path": "agents/pm_agent.py", "text": "ev_gt_8"},
+        {"type": "contains", "path": "agents/pm_agent.py", "text": "industry_position_ok"},
+        {"type": "contains", "path": "agents/pm_agent.py", "text": "theme_position_ok"},
+        {"type": "contains", "path": "tests/test_formulas.py", "text": "test_expected_value_pct"}
+      ]
+    },
+    {
+      "id": "execution_simulation_only",
+      "section": "3.6 Execution Agent",
+      "requirement": "前 6 个月只跑模拟盘，记录计划价、模拟成交价、滑点、止损失效条件；真实交易默认关闭。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/execution_agent.py", "text": "simulation_only"},
+        {"type": "contains", "path": "agents/execution_agent.py", "text": "simulated_entry_price"},
+        {"type": "contains", "path": "agents/execution_agent.py", "text": "stop_loss_condition"},
+        {"type": "contains", "path": ".env.example", "text": "A_STOCK_TRADING_ENABLED=false"},
+        {"type": "contains", "path": "dify/pm_console_prompt.md", "text": "只能写模拟盘，不允许真实下单"}
+      ]
+    },
+    {
+      "id": "review_agent_attribution",
+      "section": "3.7 Review Agent",
+      "requirement": "Review Agent 对已平仓交易复盘，记录胜率、收益偏差、纪律执行和失败原因。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/review_agent.py", "text": "closed_trade_count"},
+        {"type": "contains", "path": "agents/review_agent.py", "text": "win_rate_pct"},
+        {"type": "contains", "path": "agents/review_agent.py", "text": "discipline_notes"},
+        {"type": "openapi_operation", "operation_id": "getReview"}
+      ]
+    },
+    {
+      "id": "meta_learning_layers",
+      "section": "3.8 Meta-Learning Agent",
+      "requirement": "Meta-Learning 分信号层、风格层、体制层；周度诊断，月度才允许第一层参数更新，防止过拟合。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/meta_learning_agent.py", "text": "weekly_diagnostic"},
+        {"type": "contains", "path": "agents/meta_learning_agent.py", "text": "monthly_parameter_check"},
+        {"type": "contains", "path": "config/parameters.json", "text": "single_factor_weight_cap"},
+        {"type": "contains", "path": "config/parameters.json", "text": "regime_layer_manual_confirmation"}
+      ]
+    },
+    {
+      "id": "guard_agent_health_monitoring",
+      "section": "3.9 Guard Agent",
+      "requirement": "Guard Agent 监控数据、系统、决策、成本、组合风险；异常才推送。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "contains", "path": "agents/guard_agent.py", "text": "data_health"},
+        {"type": "contains", "path": "agents/guard_agent.py", "text": "system_health"},
+        {"type": "contains", "path": "agents/guard_agent.py", "text": "decision_health"},
+        {"type": "contains", "path": "agents/guard_agent.py", "text": "portfolio_risk"},
+        {"type": "openapi_operation", "operation_id": "getGuardStatus"}
+      ]
+    },
+    {
+      "id": "automation_github_actions_daily",
+      "section": "第四章 工具分工与自动化架构",
+      "requirement": "GitHub Actions 北京时间 15:30 交易日运行 pipeline，19:00 前推送日报。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "file_exists", "path": ".github/workflows/daily_run.yml"},
+        {"type": "contains", "path": ".github/workflows/daily_run.yml", "text": "30 7 * * 1-5"},
+        {"type": "contains", "path": ".github/workflows/daily_run.yml", "text": "python main_pipeline.py"},
+        {"type": "contains", "path": "notify.py", "text": "SERVERCHAN_SENDKEY"},
+        {"type": "contains", "path": "notify.py", "text": "TELEGRAM_BOT_TOKEN"}
+      ]
+    },
+    {
+      "id": "dify_cloud_assets",
+      "section": "Dify Cloud 搭建计划",
+      "requirement": "Dify 侧包含 PM Console Chatflow、4 个 Workflow、知识库、OpenAPI Custom Tool。",
+      "status_expectation": "prepared_needs_cloud_import",
+      "evidence": [
+        {"type": "contains", "path": "dify/app_spec.json", "text": "A股AI投研 PM Console"},
+        {"type": "contains", "path": "dify/app_spec.json", "text": "Daily Report Composer"},
+        {"type": "contains", "path": "dify/app_spec.json", "text": "Weekly Deep Research Brief"},
+        {"type": "contains", "path": "dify/app_spec.json", "text": "Monthly Review Composer"},
+        {"type": "contains", "path": "dify/app_spec.json", "text": "Quarterly Meta-Learning Review"},
+        {"type": "contains", "path": "dify/app_spec.json", "text": "a_stock_research_kb"},
+        {"type": "file_exists", "path": "dify/custom_tool_openapi.yaml"},
+        {"type": "file_exists", "path": "dify/workflow_node_specs.json"},
+        {"type": "file_exists", "path": "dify/workflow_prompts/daily_report_composer.md"}
+      ]
+    },
+    {
+      "id": "public_api_contract",
+      "section": "Public Interfaces",
+      "requirement": "后端固定提供 11 个 API，供 Dify Custom Tool 通过 Bearer Auth 调用。",
+      "status_expectation": "local_implemented",
+      "evidence": [
+        {"type": "openapi_operation", "operation_id": "health"},
+        {"type": "openapi_operation", "operation_id": "runPipeline"},
+        {"type": "openapi_operation", "operation_id": "getDailyReport"},
+        {"type": "openapi_operation", "operation_id": "getMarketState"},
+        {"type": "openapi_operation", "operation_id": "getCandidates"},
+        {"type": "openapi_operation", "operation_id": "approveDecision"},
+        {"type": "openapi_operation", "operation_id": "exitTrade"},
+        {"type": "openapi_operation", "operation_id": "getReview"},
+        {"type": "openapi_operation", "operation_id": "getGuardStatus"},
+        {"type": "openapi_operation", "operation_id": "upsertWatchlistItem"},
+        {"type": "openapi_operation", "operation_id": "runResearch"},
+        {"type": "contains", "path": "dify/custom_tool_openapi.yaml", "text": "bearerAuth"}
+      ]
+    },
+    {
+      "id": "dify_cloud_final_verification",
+      "section": "最终云端验收",
+      "requirement": "真实 Dify Cloud 工作区中 Custom Tool、Knowledge Base、PM Console、4 个 Workflow 创建并绑定成功，App API 验收用例通过。",
+      "status_expectation": "needs_external_dify_credentials",
+      "evidence": [
+        {"type": "file_exists", "path": "scripts/accept_dify_app_api.py"},
+        {"type": "file_exists", "path": "dify/app_acceptance_cases.json"},
+        {"type": "contains", "path": "dify/ACCEPTANCE_CHECKLIST.md", "text": "Dify App API Key 已生成"},
+        {"type": "external_required", "description": "Requires DIFY_APP_API_KEY and an already-created Dify Cloud PM Console app"}
+      ]
+    }
+  ]
+}

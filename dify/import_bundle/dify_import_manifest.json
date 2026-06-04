@@ -1,0 +1,60 @@
+{
+  "custom_tool": {
+    "name": "A Stock AI Research System 5.0 API",
+    "schema_file": "custom_tool_openapi.public.yaml",
+    "console_payload_file": "custom_tool_console_payload.sample.json",
+    "auth": "Bearer token from A_STOCK_API_KEY",
+    "dynamic_schema_url": "https://titles-broken-authorized-coaching.trycloudflare.com/openapi.yaml"
+  },
+  "model_provider": {
+    "provider": "DeepSeek",
+    "fallback_provider": "OpenAI-compatible",
+    "base_url": "https://api.deepseek.com",
+    "strong_model": "deepseek-v4-pro",
+    "fast_model": "deepseek-v4-flash",
+    "pm_console_model": "deepseek-v4-pro",
+    "api_key_env": "DEEPSEEK_API_KEY"
+  },
+  "chatflow": {
+    "name": "A股AI投研 PM Console",
+    "system_prompt_file": "pm_console_prompt.md",
+    "acceptance_cases_file": "app_acceptance_cases.json",
+    "knowledge_base": "a_stock_research_kb"
+  },
+  "workflows": [
+    {
+      "name": "Daily Report Composer",
+      "dsl_file": "dsl/daily_report_composer.workflow.dsl.yaml",
+      "model_rule": "deepseek-v4-flash"
+    },
+    {
+      "name": "Weekly Deep Research Brief",
+      "dsl_file": "dsl/weekly_deep_research_brief.workflow.dsl.yaml",
+      "model_rule": "deepseek-v4-pro"
+    },
+    {
+      "name": "Monthly Review Composer",
+      "dsl_file": "dsl/monthly_review_composer.workflow.dsl.yaml",
+      "model_rule": "deepseek-v4-pro"
+    },
+    {
+      "name": "Quarterly Meta-Learning Review",
+      "dsl_file": "dsl/quarterly_meta_learning_review.workflow.dsl.yaml",
+      "model_rule": "deepseek-v4-pro"
+    }
+  ],
+  "pm_console_dsl_file": "dsl/pm_console.chatflow.dsl.yaml",
+  "post_import_tests": [
+    "Knowledge base contains the original PDF and project prompt/config files",
+    "Dify App API acceptance cases pass through scripts/accept_dify_app_api.py",
+    "Custom Tool health succeeds",
+    "runPipeline succeeds for today",
+    "getDailyReport returns JSON",
+    "getCandidates returns PM candidates",
+    "approveDecision creates simulated trade only",
+    "exitTrade records exit reason and pnl_pct",
+    "getGuardStatus returns alerts or ok"
+  ],
+  "dify_console_import_endpoint": "/apps/imports",
+  "dify_console_custom_tool_endpoint": "/workspaces/current/tool-provider/api/add"
+}

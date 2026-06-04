@@ -1,0 +1,270 @@
+{
+  "version": "0.6.0",
+  "kind": "app",
+  "app": {
+    "name": "Monthly Review Composer",
+    "mode": "workflow",
+    "icon": "📈",
+    "icon_type": "emoji",
+    "icon_background": "#D5F5F6",
+    "description": "月度模拟盘复盘与纪律执行总结。",
+    "use_icon_as_answer_icon": false
+  },
+  "workflow": {
+    "conversation_variables": [],
+    "environment_variables": [],
+    "features": {
+      "file_upload": {
+        "enabled": false
+      },
+      "opening_statement": "",
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "start_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 30,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 30,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "start",
+            "title": "Start",
+            "desc": "",
+            "selected": false,
+            "variables": [
+              {
+                "variable": "period",
+                "label": "period",
+                "type": "text-input",
+                "required": false,
+                "max_length": null,
+                "options": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "get_review",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 334,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 334,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getReview",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getReview",
+            "tool_label": "getReview",
+            "tool_description": "A Stock Python Core operation: getReview",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "period": {
+                "type": "mixed",
+                "value": "{{#start_node.period#}}"
+              }
+            }
+          }
+        },
+        {
+          "id": "compose_monthly_review",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 638,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 638,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "llm",
+            "title": "compose_monthly_review",
+            "desc": "",
+            "selected": false,
+            "model": {
+              "provider": "deepseek",
+              "name": "deepseek-v4-pro",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.2
+              }
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "# Monthly Review Composer Prompt\n\n你是 A股AI投研系统5.0 的月度复盘整理器。你的任务是防止选择性失忆，只根据 Review Agent 返回的已平仓模拟盘记录总结。\n\n如果 Dify 流程中加入 Hermes Agent 交互工具，Hermes 可以帮助收集用户本机复盘备注、截图、人工反思和待办，但不得改写 Review Agent 的交易统计、纪律评价或失败记录。\n\n必须覆盖：\n- 已平仓交易数量。\n- 胜率、平均收益、最大亏损；如果为空或样本太少，明确写“样本不足”。\n- 止损纪律：是否按情景C失效条件或兜底 -8% 执行。\n- 人工干预：如有必须单独列出。\n- Agent 贡献：Signal、Research、Risk、PM 哪些信号更有解释力；无数据时不得编造。\n- 下月改进：只写流程和纪律改进，不写收益承诺。\n\n硬性边界：\n- 仅供学习研究参考，不构成投资建议。\n- 不允许忽略失败交易。\n- 不允许用少量样本做过拟合结论。\n- Hermes 或其他外部工具的补充观点必须标注为“人工/上下文补充”，不能当作已平仓交易证据。\n"
+              },
+              {
+                "role": "user",
+                "text": "请根据上游工具返回结果生成最终报告。\n\n输入变量：period={{#start_node.period#}}\n\n工具结果：\n\ngetReview: {{#get_review.text#}}"
+              }
+            ],
+            "vision": {
+              "enabled": false,
+              "configs": {
+                "variable_selector": []
+              }
+            },
+            "memory": {
+              "enabled": false,
+              "window": {
+                "enabled": false,
+                "size": 50
+              }
+            },
+            "context": {
+              "enabled": false,
+              "variable_selector": []
+            },
+            "structured_output": {
+              "enabled": false
+            },
+            "retry_config": {
+              "enabled": false,
+              "max_retries": 1,
+              "retry_interval": 1000,
+              "exponential_backoff": {
+                "enabled": false,
+                "multiplier": 2,
+                "max_interval": 10000
+              }
+            }
+          }
+        },
+        {
+          "id": "end_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 942,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 942,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "end",
+            "title": "End",
+            "desc": "",
+            "selected": false,
+            "outputs": [
+              {
+                "variable": "answer_markdown",
+                "value_selector": [
+                  "compose_monthly_review",
+                  "text"
+                ],
+                "value_type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "start_node-to-get_review",
+          "source": "start_node",
+          "sourceHandle": "source",
+          "target": "get_review",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "start",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_review-to-compose_monthly_review",
+          "source": "get_review",
+          "sourceHandle": "source",
+          "target": "compose_monthly_review",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "llm"
+          }
+        },
+        {
+          "id": "compose_monthly_review-to-end_node",
+          "source": "compose_monthly_review",
+          "sourceHandle": "source",
+          "target": "end_node",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "end"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 0.7
+      }
+    }
+  },
+  "dependencies": []
+}

@@ -1,0 +1,492 @@
+{
+  "schema": "a_stock_completion_audit_report.v1",
+  "source_pdf": "A股AI投研系统5.0完整方案.pdf",
+  "overall_status": "local_ready",
+  "summary": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0,
+    "needs_external_verification": 0
+  },
+  "items": [
+    {
+      "id": "arch_9_agents",
+      "section": "第二章 系统架构总览",
+      "requirement": "系统由 Data、Signal、Research、Risk、PM、Execution、Review、Meta-Learning、Guard 9 个 Agent 组成，职责单一，PM Agent 唯一有决策权。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\data_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\signal_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\research_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\risk_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\pm_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\execution_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\review_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\meta_learning_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\agents\\guard_agent.py"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/pm_console_prompt.md contains PM Agent 是唯一决策节点"
+        }
+      ]
+    },
+    {
+      "id": "data_agent_sources_and_guardrail",
+      "section": "3.1 Data Agent",
+      "requirement": "Data Agent 只采集不分析，单源失败不阻断，脏数据不向下游传递；默认 akshare，Tushare 可选。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/data_agent.py contains single_source_failures"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/data_agent.py contains akshare"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\config\\data_sources.json"
+        },
+        {
+          "status": "passed",
+          "detail": "config/data_sources.json contains lhb_detail"
+        },
+        {
+          "status": "passed",
+          "detail": "config/data_sources.json contains northbound_flow"
+        },
+        {
+          "status": "passed",
+          "detail": "config/data_sources.json contains minute_bars_watchlist"
+        },
+        {
+          "status": "passed",
+          "detail": "database/schema.sql contains data_quality_checks"
+        },
+        {
+          "status": "passed",
+          "detail": "config/parameters.json contains TUSHARE_TOKEN"
+        }
+      ]
+    },
+    {
+      "id": "signal_agent_7d_position_formula",
+      "section": "3.2 Signal Agent",
+      "requirement": "Signal Agent 输出 7 维连续评分，并按公式计算 max_position。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains emotion"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains theme_momentum"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains institution_flow"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains quant_dominance"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains liquidity"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains chaos"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/signal_agent.py contains narrative_heat"
+        },
+        {
+          "status": "passed",
+          "detail": "core/formulas.py contains calculate_max_position_pct"
+        },
+        {
+          "status": "passed",
+          "detail": "tests/test_formulas.py contains test_max_position_formula_matches_plan"
+        }
+      ]
+    },
+    {
+      "id": "research_logic_narrative_alpha",
+      "section": "3.3 Research Agent",
+      "requirement": "Research Agent 包含 Logic 与 Narrative 双子模块，输出 Alpha，避免逻辑闭环幻觉。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/research_agent.py contains logic"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/research_agent.py contains narrative"
+        },
+        {
+          "status": "passed",
+          "detail": "core/formulas.py contains calculate_alpha_score"
+        },
+        {
+          "status": "passed",
+          "detail": "tests/test_formulas.py contains test_alpha_rewards_fresh_uncrowded_logic"
+        }
+      ]
+    },
+    {
+      "id": "risk_agent_one_veto",
+      "section": "3.4 Risk Agent",
+      "requirement": "Risk Agent 专门找理由不买，支持 A-D 风险等级和一票否决。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/risk_agent.py contains one_veto"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/risk_agent.py contains risk_grade"
+        },
+        {
+          "status": "passed",
+          "detail": "tests/test_pipeline.py contains test_risk_one_veto_blocks_buy"
+        }
+      ]
+    },
+    {
+      "id": "pm_agent_scenario_ev_portfolio",
+      "section": "3.5 PM Agent",
+      "requirement": "PM Agent 生成三情景树、EV、综合评分和组合层约束；EV>8 才进入候选。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/pm_agent.py contains scenario_tree"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/pm_agent.py contains ev_gt_8"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/pm_agent.py contains industry_position_ok"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/pm_agent.py contains theme_position_ok"
+        },
+        {
+          "status": "passed",
+          "detail": "tests/test_formulas.py contains test_expected_value_pct"
+        }
+      ]
+    },
+    {
+      "id": "execution_simulation_only",
+      "section": "3.6 Execution Agent",
+      "requirement": "前 6 个月只跑模拟盘，记录计划价、模拟成交价、滑点、止损失效条件；真实交易默认关闭。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/execution_agent.py contains simulation_only"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/execution_agent.py contains simulated_entry_price"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/execution_agent.py contains stop_loss_condition"
+        },
+        {
+          "status": "passed",
+          "detail": ".env.example contains A_STOCK_TRADING_ENABLED=false"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/pm_console_prompt.md contains 只能写模拟盘，不允许真实下单"
+        }
+      ]
+    },
+    {
+      "id": "review_agent_attribution",
+      "section": "3.7 Review Agent",
+      "requirement": "Review Agent 对已平仓交易复盘，记录胜率、收益偏差、纪律执行和失败原因。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/review_agent.py contains closed_trade_count"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/review_agent.py contains win_rate_pct"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/review_agent.py contains discipline_notes"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getReview"
+        }
+      ]
+    },
+    {
+      "id": "meta_learning_layers",
+      "section": "3.8 Meta-Learning Agent",
+      "requirement": "Meta-Learning 分信号层、风格层、体制层；周度诊断，月度才允许第一层参数更新，防止过拟合。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/meta_learning_agent.py contains weekly_diagnostic"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/meta_learning_agent.py contains monthly_parameter_check"
+        },
+        {
+          "status": "passed",
+          "detail": "config/parameters.json contains single_factor_weight_cap"
+        },
+        {
+          "status": "passed",
+          "detail": "config/parameters.json contains regime_layer_manual_confirmation"
+        }
+      ]
+    },
+    {
+      "id": "guard_agent_health_monitoring",
+      "section": "3.9 Guard Agent",
+      "requirement": "Guard Agent 监控数据、系统、决策、成本、组合风险；异常才推送。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "agents/guard_agent.py contains data_health"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/guard_agent.py contains system_health"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/guard_agent.py contains decision_health"
+        },
+        {
+          "status": "passed",
+          "detail": "agents/guard_agent.py contains portfolio_risk"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getGuardStatus"
+        }
+      ]
+    },
+    {
+      "id": "automation_github_actions_daily",
+      "section": "第四章 工具分工与自动化架构",
+      "requirement": "GitHub Actions 北京时间 15:30 交易日运行 pipeline，19:00 前推送日报。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\.github\\workflows\\daily_run.yml"
+        },
+        {
+          "status": "passed",
+          "detail": ".github/workflows/daily_run.yml contains 30 7 * * 1-5"
+        },
+        {
+          "status": "passed",
+          "detail": ".github/workflows/daily_run.yml contains python main_pipeline.py"
+        },
+        {
+          "status": "passed",
+          "detail": "notify.py contains SERVERCHAN_SENDKEY"
+        },
+        {
+          "status": "passed",
+          "detail": "notify.py contains TELEGRAM_BOT_TOKEN"
+        }
+      ]
+    },
+    {
+      "id": "dify_cloud_assets",
+      "section": "Dify Cloud 搭建计划",
+      "requirement": "Dify 侧包含 PM Console Chatflow、4 个 Workflow、知识库、OpenAPI Custom Tool。",
+      "status_expectation": "prepared_needs_cloud_import",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "dify/app_spec.json contains A股AI投研 PM Console"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/app_spec.json contains Daily Report Composer"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/app_spec.json contains Weekly Deep Research Brief"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/app_spec.json contains Monthly Review Composer"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/app_spec.json contains Quarterly Meta-Learning Review"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/app_spec.json contains a_stock_research_kb"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\custom_tool_openapi.yaml"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\workflow_node_specs.json"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\workflow_prompts\\daily_report_composer.md"
+        }
+      ]
+    },
+    {
+      "id": "public_api_contract",
+      "section": "Public Interfaces",
+      "requirement": "后端固定提供 11 个 API，供 Dify Custom Tool 通过 Bearer Auth 调用。",
+      "status_expectation": "local_implemented",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "operationId: health"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: runPipeline"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getDailyReport"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getMarketState"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getCandidates"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: approveDecision"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: exitTrade"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getReview"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: getGuardStatus"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: upsertWatchlistItem"
+        },
+        {
+          "status": "passed",
+          "detail": "operationId: runResearch"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/custom_tool_openapi.yaml contains bearerAuth"
+        }
+      ]
+    },
+    {
+      "id": "dify_cloud_final_verification",
+      "section": "最终云端验收",
+      "requirement": "真实 Dify Cloud 工作区中 Custom Tool、Knowledge Base、PM Console、4 个 Workflow 创建并绑定成功，App API 验收用例通过。",
+      "status_expectation": "needs_external_dify_credentials",
+      "status": "passed",
+      "evidence": [
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\scripts\\accept_dify_app_api.py"
+        },
+        {
+          "status": "passed",
+          "detail": "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\app_acceptance_cases.json"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/ACCEPTANCE_CHECKLIST.md contains Dify App API Key 已生成"
+        },
+        {
+          "status": "external_required",
+          "detail": "Requires DIFY_APP_API_KEY and an already-created Dify Cloud PM Console app"
+        },
+        {
+          "status": "passed",
+          "detail": "dify/cloud_verification_status.json overall_status=verified"
+        }
+      ]
+    }
+  ],
+  "note": "needs_external_verification means the local implementation is prepared, but proof requires real Dify Cloud credentials/API access."
+}

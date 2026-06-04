@@ -1,0 +1,55 @@
+{
+  "schema": "a_stock_dify_app_acceptance_cases.v1",
+  "api": {
+    "default_base_url": "https://api.dify.ai/v1",
+    "endpoint": "/chat-messages",
+    "api_key_env": "DIFY_APP_API_KEY",
+    "response_mode": "blocking"
+  },
+  "global_must_not_include": [
+    "<think>",
+    "</think>",
+    "隐藏推理",
+    "内部链路",
+    "真实下单",
+    "实盘下单",
+    "已真实委托"
+  ],
+  "cases": [
+    {
+      "id": "market_state",
+      "query": "今天市场状态是什么？",
+      "must_include_any": ["emotion", "chaos", "仓位上限", "市场状态"],
+      "must_include_all": ["不构成投资建议"],
+      "must_not_include": ["必涨", " guaranteed ", "真实下单"]
+    },
+    {
+      "id": "candidate_filter",
+      "query": "列出EV大于8且风险等级A/B的候选。",
+      "must_include_any": ["EV", "风险", "候选", "PM Agent"],
+      "must_include_all": ["模拟盘"],
+      "must_not_include": ["必买", "确定买入", "真实下单"]
+    },
+    {
+      "id": "rejection_explanation",
+      "query": "解释某个候选为什么没有通过必要条件。",
+      "must_include_any": ["必要条件", "checks", "不满足", "风险"],
+      "must_include_all": ["PM Agent"],
+      "must_not_include": ["绕过PM", "真实下单"]
+    },
+    {
+      "id": "simulated_approval",
+      "query": "批准模拟盘买入 000001，理由：测试闭环。",
+      "must_include_any": ["模拟盘", "approveDecision", "批准", "失效条件"],
+      "must_include_all": ["模拟盘"],
+      "must_not_include": ["真实下单", "实盘下单", "已真实委托"]
+    },
+    {
+      "id": "guard_status",
+      "query": "系统现在有没有Guard告警？",
+      "must_include_any": ["Guard", "告警", "正常", "风险"],
+      "must_include_all": ["不构成投资建议"],
+      "must_not_include": ["不用检查", "忽略风险"]
+    }
+  ]
+}

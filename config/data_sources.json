@@ -1,0 +1,78 @@
+{
+  "schema": "a_stock_data_sources.v1",
+  "sources": [
+    {
+      "id": "market_snapshot",
+      "label": "全市场行情快照",
+      "provider": "akshare",
+      "frequency": "每交易日15:35",
+      "required": true,
+      "candidate_functions": ["stock_zh_a_spot_em"]
+    },
+    {
+      "id": "limit_up_pool",
+      "label": "涨停股池",
+      "provider": "akshare",
+      "frequency": "每交易日15:35",
+      "required": false,
+      "candidate_functions": ["stock_zt_pool_em"]
+    },
+    {
+      "id": "limit_down_pool",
+      "label": "跌停股池",
+      "provider": "akshare",
+      "frequency": "每交易日15:35",
+      "required": false,
+      "candidate_functions": ["stock_dt_pool_em"]
+    },
+    {
+      "id": "lhb_detail",
+      "label": "龙虎榜原始数据",
+      "provider": "akshare",
+      "frequency": "每交易日16:00",
+      "required": false,
+      "candidate_functions": ["stock_lhb_detail_em"]
+    },
+    {
+      "id": "northbound_flow",
+      "label": "北向资金净流入",
+      "provider": "akshare",
+      "frequency": "每交易日收盘后",
+      "required": false,
+      "candidate_functions": ["stock_hsgt_fund_flow_summary_em", "stock_hsgt_north_net_flow_in_em"]
+    },
+    {
+      "id": "etf_flow",
+      "label": "ETF资金流向",
+      "provider": "akshare",
+      "frequency": "每交易日收盘后",
+      "required": false,
+      "candidate_functions": ["fund_etf_fund_flow_rank_em", "fund_etf_spot_em"]
+    },
+    {
+      "id": "announcements",
+      "label": "巨潮/公告风险线索",
+      "provider": "akshare_or_cninfo",
+      "frequency": "实时触发/盘后补录",
+      "required": false,
+      "candidate_functions": ["stock_notice_report"]
+    },
+    {
+      "id": "financial_abstract",
+      "label": "财务摘要",
+      "provider": "akshare_or_tushare",
+      "frequency": "财报季更新",
+      "required": false,
+      "candidate_functions": ["stock_financial_abstract"]
+    },
+    {
+      "id": "minute_bars_watchlist",
+      "label": "关注股15分钟数据",
+      "provider": "akshare",
+      "frequency": "盘中15分钟刷新",
+      "required": false,
+      "candidate_functions": ["stock_zh_a_hist_min_em"]
+    }
+  ]
+}
+

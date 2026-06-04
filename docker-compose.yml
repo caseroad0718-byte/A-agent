@@ -1,0 +1,16 @@
+services:
+  a-stock-system:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      A_STOCK_TRADING_ENABLED: "false"
+      A_STOCK_DB_PATH: /app/data/a_stock_system.sqlite
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+    restart: unless-stopped
+

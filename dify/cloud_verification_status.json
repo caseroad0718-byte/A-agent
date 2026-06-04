@@ -1,0 +1,169 @@
+{
+  "schema": "a_stock_dify_cloud_verification.v1",
+  "overall_status": "verified",
+  "passed_count": 10,
+  "total_count": 10,
+  "items": [
+    {
+      "id": "model_strategy",
+      "label": "Dify model strategy uses DeepSeek V4 Pro for strong nodes and Flash only for light nodes",
+      "status": "passed",
+      "evidence": {
+        "pm_console_model": "deepseek-v4-pro",
+        "strong_model": "deepseek-v4-pro",
+        "fast_model": "deepseek-v4-flash"
+      },
+      "next_action": null
+    },
+    {
+      "id": "python_core_health",
+      "label": "Public Python Core health endpoint is reachable",
+      "status": "passed",
+      "evidence": {
+        "base_url": "https://titles-broken-authorized-coaching.trycloudflare.com",
+        "health": {
+          "auth_configured": true,
+          "deepseek_configured": false,
+          "hermes_bridge_available": true,
+          "hermes_bridge_enabled": false,
+          "mode": "simulation_only",
+          "service": "a_stock_system",
+          "status": "ok"
+        }
+      },
+      "next_action": null
+    },
+    {
+      "id": "dynamic_openapi",
+      "label": "Public dynamic OpenAPI schema is reachable and host-resolved",
+      "status": "passed",
+      "evidence": {
+        "base_url": "https://titles-broken-authorized-coaching.trycloudflare.com",
+        "length": 10783
+      },
+      "next_action": null
+    },
+    {
+      "id": "dify_app_published",
+      "label": "Dify PM Console app is published and App API key is accepted",
+      "status": "passed",
+      "evidence": {
+        "diagnostics_status": "ok",
+        "key_accepted": true
+      },
+      "next_action": null
+    },
+    {
+      "id": "dify_app_name",
+      "label": "Dify app display name matches PM Console",
+      "status": "passed",
+      "evidence": {
+        "expected_name": "A股AI投研 PM Console",
+        "actual_name": "A股AI投研 PM Console"
+      },
+      "next_action": null
+    },
+    {
+      "id": "dify_app_acceptance",
+      "label": "Dify PM Console acceptance prompts pass without exposed reasoning tags",
+      "status": "passed",
+      "evidence": {
+        "acceptance_status": "ok",
+        "failed_count": 0,
+        "think_tags_found_in_saved_report": false
+      },
+      "next_action": null
+    },
+    {
+      "id": "custom_tool_saved",
+      "label": "Dify Custom Tool is saved in the workspace",
+      "status": "passed",
+      "evidence": {
+        "matched_tools": [
+          {
+            "id": "a09c25de-4de2-4b73-a796-4e1ca893886c",
+            "name": "A Stock AI Research System 5.0 API",
+            "type": "api",
+            "tool_count": 12
+          }
+        ],
+        "expected_min_tool_count": 11
+      },
+      "next_action": null
+    },
+    {
+      "id": "custom_tool_bound",
+      "label": "Custom Tool operations are bound to PM Console and report workflows",
+      "status": "passed",
+      "evidence": {
+        "tool_inventory_passed": true,
+        "pm_console_present": true,
+        "note": "PM Console runtime binding is also covered by App API acceptance."
+      },
+      "next_action": null
+    },
+    {
+      "id": "knowledge_base_indexed",
+      "label": "Knowledge Base is created and indexed",
+      "status": "passed",
+      "evidence": {
+        "matched_knowledge_bases": [
+          {
+            "id": "63528882-8587-487f-a917-f3d0a066c509",
+            "name": "a_stock_research_kb",
+            "document_count": 8,
+            "indexing_technique": "economy"
+          }
+        ]
+      },
+      "next_action": null
+    },
+    {
+      "id": "report_workflows_created",
+      "label": "Four report workflows are created and published in Dify",
+      "status": "passed",
+      "evidence": {
+        "matched_apps": [
+          {
+            "id": "ce7ea102-78f9-40c5-b489-4b562e633b60",
+            "name": "A股AI投研 PM Console",
+            "mode": "advanced-chat",
+            "workflow_id": null,
+            "enable_api": null
+          },
+          {
+            "id": "30655dc8-23dd-45d1-83da-ec09cbb74a53",
+            "name": "Daily Report Composer",
+            "mode": "workflow",
+            "workflow_id": null,
+            "enable_api": null
+          },
+          {
+            "id": "5ad71b3f-d053-4547-9e22-8e2032f7a8f9",
+            "name": "Weekly Deep Research Brief",
+            "mode": "workflow",
+            "workflow_id": null,
+            "enable_api": null
+          },
+          {
+            "id": "8dc9572f-9ba7-4238-826a-e7b6dae02d06",
+            "name": "Monthly Review Composer",
+            "mode": "workflow",
+            "workflow_id": null,
+            "enable_api": null
+          },
+          {
+            "id": "ea78e9e1-c12a-47e3-907a-5a63ae874fba",
+            "name": "Quarterly Meta-Learning Review",
+            "mode": "workflow",
+            "workflow_id": null,
+            "enable_api": null
+          }
+        ],
+        "missing_apps": [],
+        "mode_mismatches": []
+      },
+      "next_action": null
+    }
+  ]
+}

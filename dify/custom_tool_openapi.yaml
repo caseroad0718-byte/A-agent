@@ -1,0 +1,411 @@
+openapi: 3.0.3
+info:
+  title: A Stock AI Research System 5.0 API
+  version: "1.0.0"
+  description: >
+    Dify Custom Tool schema for the external Python core. All write operations
+    are simulation-only and require bearer authentication.
+servers:
+  - url: https://YOUR_PUBLIC_API_HOST
+    description: Replace with the HTTPS URL of your deployed Python service.
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Check service health and provider configuration.
+      security: []
+      responses:
+        "200":
+          description: Service status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /pipeline/run:
+    post:
+      operationId: runPipeline
+      summary: Run the full 9-Agent daily pipeline for a date.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: YYYY-MM-DD or today.
+                  default: today
+      responses:
+        "200":
+          description: Pipeline result.
+          content:
+            application/json:
+              schema:
+                type: object
+  /reports/daily/{date}:
+    get:
+      operationId: getDailyReport
+      summary: Get the daily report for one trading date.
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+          description: YYYY-MM-DD.
+      responses:
+        "200":
+          description: Daily report JSON.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyReport"
+  /market-state/{date}:
+    get:
+      operationId: getMarketState
+      summary: Get Signal Agent's 7-dimensional market state.
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketState"
+  /candidates:
+    get:
+      operationId: getCandidates
+      summary: Get PM Agent candidates.
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            default: today
+        - name: min_ev
+          in: query
+          required: false
+          schema:
+            type: number
+            default: 8
+        - name: risk_allowed
+          in: query
+          required: false
+          schema:
+            type: string
+            default: A,B
+          description: Comma-separated risk grades.
+      responses:
+        "200":
+          description: Candidate list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run_date:
+                    type: string
+                  candidates:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PMCandidate"
+  /decisions/approve:
+    post:
+      operationId: approveDecision
+      summary: Approve or reject one PM candidate in the simulation account.
+      description: This never sends a real order. Approval creates a simulated trade only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, symbol, approved]
+              properties:
+                date:
+                  type: string
+                  description: YYYY-MM-DD or today.
+                symbol:
+                  type: string
+                approved:
+                  type: boolean
+                approved_by:
+                  type: string
+                  default: dify_pm_console
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Decision and simulated execution result.
+          content:
+            application/json:
+              schema:
+                type: object
+  /trades/exit:
+    post:
+      operationId: exitTrade
+      summary: Close one simulated trade and record the exit reason.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [exit_price, exit_reason]
+              properties:
+                trade_id:
+                  type: integer
+                symbol:
+                  type: string
+                exit_date:
+                  type: string
+                  default: today
+                exit_price:
+                  type: number
+                exit_reason:
+                  type: string
+      responses:
+        "200":
+          description: Closed trade result.
+          content:
+            application/json:
+              schema:
+                type: object
+  /review:
+    get:
+      operationId: getReview
+      summary: Get recent Review Agent reports.
+      parameters:
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+            default: all_closed_trades
+      responses:
+        "200":
+          description: Review reports.
+          content:
+            application/json:
+              schema:
+                type: object
+  /guard/status:
+    get:
+      operationId: getGuardStatus
+      summary: Run or get Guard Agent status.
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            default: today
+      responses:
+        "200":
+          description: Guard status.
+          content:
+            application/json:
+              schema:
+                type: object
+  /watchlist:
+    post:
+      operationId: upsertWatchlistItem
+      summary: Add or update one watchlist item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [item]
+              properties:
+                item:
+                  $ref: "#/components/schemas/WatchlistItem"
+      responses:
+        "200":
+          description: Updated watchlist status.
+          content:
+            application/json:
+              schema:
+                type: object
+  /research/run:
+    post:
+      operationId: runResearch
+      summary: Re-run Research Agent for a date.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  default: today
+      responses:
+        "200":
+          description: Research result.
+          content:
+            application/json:
+              schema:
+                type: object
+  /hermes/observe:
+    post:
+      operationId: hermesObserve
+      summary: Ask local Hermes Agent to produce a non-decision context observation.
+      description: >
+        Optional local bridge. Hermes output is supplemental context only and never replaces
+        PM/Risk/Guard decisions. Disabled unless A_STOCK_ENABLE_HERMES_BRIDGE=true.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt:
+                  type: string
+                  description: Text, screenshot OCR, notes, or user context to summarize.
+      responses:
+        "200":
+          description: Hermes supplemental observation, disabled status, or unavailable status.
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: A_STOCK_API_KEY
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        mode:
+          type: string
+        auth_configured:
+          type: boolean
+        deepseek_configured:
+          type: boolean
+    SignalVector:
+      type: object
+      properties:
+        emotion:
+          type: number
+        theme_momentum:
+          type: number
+        institution_flow:
+          type: number
+        quant_dominance:
+          type: number
+        liquidity:
+          type: number
+        chaos:
+          type: number
+        narrative_heat:
+          type: number
+    MarketState:
+      type: object
+      properties:
+        run_date:
+          type: string
+        signal_vector:
+          $ref: "#/components/schemas/SignalVector"
+        max_position_pct:
+          type: number
+        force_cash_reasons:
+          type: array
+          items:
+            type: string
+    Scenario:
+      type: object
+      properties:
+        name:
+          type: string
+        expected_return_pct:
+          type: number
+        probability:
+          type: number
+        invalidation_condition:
+          type: string
+    PMCandidate:
+      type: object
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        action:
+          type: string
+        composite_score:
+          type: number
+        alpha_score:
+          type: number
+        risk_grade:
+          type: string
+        scenario_tree:
+          type: array
+          items:
+            $ref: "#/components/schemas/Scenario"
+        ev_pct:
+          type: number
+        proposed_position_pct:
+          type: number
+        stop_loss_condition:
+          type: string
+        approved:
+          type: boolean
+    DailyReport:
+      type: object
+      properties:
+        run_date:
+          type: string
+        market_state:
+          $ref: "#/components/schemas/SignalVector"
+        max_position_pct:
+          type: number
+        pm_plan:
+          type: object
+        open_sim_trades:
+          type: array
+          items:
+            type: object
+        guard_alerts:
+          type: array
+          items:
+            type: object
+        disclaimer:
+          type: string
+    WatchlistItem:
+      type: object
+      required: [symbol, name]
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        industry:
+          type: string
+        theme:
+          type: string
+        market_cap_bucket:
+          type: string
+          enum: [small, mid, large]
+        is_follower:
+          type: boolean

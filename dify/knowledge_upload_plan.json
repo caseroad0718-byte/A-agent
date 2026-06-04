@@ -1,0 +1,17 @@
+{
+  "api_base": "https://api.dify.ai/v1",
+  "dataset_name": "a_stock_research_kb",
+  "dataset_id": null,
+  "create_if_missing": false,
+  "file_count": 8,
+  "files": [
+    "C:\\Users\\Road7\\Desktop\\A股AI投研系统5.0完整方案.pdf",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\knowledge_base_seed.md",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\pm_console_prompt.md",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\workflow_blueprints.md",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\dify\\HERMES_AGENT_INTEGRATION.md",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\config\\parameters.json",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\config\\watchlist.json",
+    "C:\\Users\\Road7\\Documents\\Codex\\2026-06-03\\files-mentioned-by-the-user-a\\outputs\\a_stock_system\\reports\\daily\\2026-06-03.md"
+  ]
+}

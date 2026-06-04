@@ -1,0 +1,52 @@
+name: A Stock AI Research Daily Run
+
+on:
+  schedule:
+    # 15:30 Beijing time, Monday-Friday.
+    - cron: "30 7 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      run_date:
+        description: "YYYY-MM-DD or today"
+        required: false
+        default: "today"
+
+jobs:
+  daily-run:
+    runs-on: ubuntu-latest
+    env:
+      A_STOCK_API_KEY: ${{ secrets.A_STOCK_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      DEEPSEEK_BASE_URL: ${{ vars.DEEPSEEK_BASE_URL || 'https://api.deepseek.com' }}
+      DEEPSEEK_MODEL_STRONG: ${{ vars.DEEPSEEK_MODEL_STRONG || 'deepseek-v4-pro' }}
+      DEEPSEEK_MODEL_FAST: ${{ vars.DEEPSEEK_MODEL_FAST || 'deepseek-v4-flash' }}
+      DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || vars.DEEPSEEK_MODEL_STRONG || 'deepseek-v4-pro' }}
+      TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      A_STOCK_TRADING_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run daily pipeline
+        run: python main_pipeline.py --date "${{ github.event.inputs.run_date || 'today' }}"
+      - name: Send report notification
+        run: |
+          REPORT_DATE="${{ github.event.inputs.run_date || 'today' }}"
+          if [ "$REPORT_DATE" = "today" ]; then REPORT_DATE=$(TZ=Asia/Shanghai date +%F); fi
+          python notify.py --report "reports/daily/${REPORT_DATE}.md"
+      - name: Upload daily artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: a-stock-daily-report
+          path: |
+            reports/daily/
+            data/
+            logs/

@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+data/*.db
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/*.db-shm
+data/*.db-wal
+logs/*.log
+reports/daily/*.tmp

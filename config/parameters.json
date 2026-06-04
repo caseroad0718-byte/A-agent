@@ -1,0 +1,95 @@
+{
+  "system": {
+    "name": "A股AI投研系统5.0",
+    "mode": "simulation_only",
+    "trading_enabled_env": "A_STOCK_TRADING_ENABLED"
+  },
+  "llm": {
+    "provider": "deepseek",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "base_url_env": "DEEPSEEK_BASE_URL",
+    "legacy_model_env": "DEEPSEEK_MODEL",
+    "default_profile": "strong",
+    "default_base_url": "https://api.deepseek.com",
+    "profiles": {
+      "strong": {
+        "model_env": "DEEPSEEK_MODEL_STRONG",
+        "default_model": "deepseek-v4-pro",
+        "use_cases": ["pm_console", "research_narrative", "weekly_research", "monthly_review", "quarterly_meta_learning"]
+      },
+      "fast": {
+        "model_env": "DEEPSEEK_MODEL_FAST",
+        "default_model": "deepseek-v4-flash",
+        "use_cases": ["daily_report_formatting", "candidate_lookup", "guard_status"]
+      }
+    }
+  },
+  "data": {
+    "default_market_provider": "akshare",
+    "optional_market_provider": "tushare_pro",
+    "tushare_token_env": "TUSHARE_TOKEN",
+    "single_source_failure_policy": "continue_with_available_sources",
+    "dirty_data_policy": "block_downstream_snapshot"
+  },
+  "signal": {
+    "base_max_position_pct": 60.0,
+    "force_cash_chaos_threshold": 85.0,
+    "force_cash_chaos_days": 2,
+    "pre_holiday_force_cash_days": 2,
+    "pre_major_meeting_force_cash_days": 2,
+    "min_buy_market_position_pct": 15.0
+  },
+  "research": {
+    "logic_weights": {
+      "growth": 0.30,
+      "quality": 0.25,
+      "valuation": 0.20,
+      "catalyst_clarity": 0.25
+    },
+    "min_research_alpha": 20.0,
+    "min_fundamental_score": 70.0,
+    "min_narrative_freshness_bonus": 60.0
+  },
+  "pm": {
+    "research_alpha_weight": 0.30,
+    "liquidity_quality_weight": 0.15,
+    "min_ev_pct": 8.0,
+    "max_industry_position_pct": 40.0,
+    "max_theme_position_pct": 30.0,
+    "max_portfolio_correlation": 0.70,
+    "single_stock_cap_share_of_total": 0.30,
+    "follower_stock_cap_share_of_total": 0.15,
+    "repeat_buy_lock_days": 3
+  },
+  "risk": {
+    "pledge_rate_one_veto_pct": 70.0,
+    "pledge_rate_warning_pct": 50.0,
+    "goodwill_to_net_assets_warning_pct": 30.0,
+    "limit_break_rate_one_veto_pct": 50.0,
+    "allowed_buy_grades": ["A", "B"]
+  },
+  "execution": {
+    "small_cap_slippage_pct": 0.30,
+    "large_cap_slippage_pct": 0.10,
+    "fallback_stop_loss_pct": -8.0,
+    "no_repeat_buy_days": 3
+  },
+  "meta_learning": {
+    "weekly_diagnostic_weekday": 4,
+    "monthly_update_min_trades": 30,
+    "single_factor_weight_cap": 0.35,
+    "style_layer_min_months": 6,
+    "new_vs_old_win_rate_min_delta_pct": 5.0,
+    "regime_layer_manual_confirmation": true
+  },
+  "guard": {
+    "data_row_deviation_pct": 20.0,
+    "agent_timeout_minutes": 30,
+    "api_error_rate_warning_pct": 10.0,
+    "pm_no_action_warning_days": 3,
+    "recent_trade_window": 10,
+    "recent_trade_win_rate_warning_pct": 30.0,
+    "daily_api_cost_budget_cny": 8.0,
+    "single_day_drawdown_alert_pct": 5.0
+  }
+}

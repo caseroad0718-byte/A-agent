@@ -1,0 +1,322 @@
+{
+  "version": "0.6.0",
+  "kind": "app",
+  "app": {
+    "name": "Daily Report Composer",
+    "mode": "workflow",
+    "icon": "📈",
+    "icon_type": "emoji",
+    "icon_background": "#D5F5F6",
+    "description": "交易日 19:00 日报摘要与次日候选检查。",
+    "use_icon_as_answer_icon": false
+  },
+  "workflow": {
+    "conversation_variables": [],
+    "environment_variables": [],
+    "features": {
+      "file_upload": {
+        "enabled": false
+      },
+      "opening_statement": "",
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "start_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 30,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 30,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "start",
+            "title": "Start",
+            "desc": "",
+            "selected": false,
+            "variables": [
+              {
+                "variable": "date",
+                "label": "date",
+                "type": "text-input",
+                "required": false,
+                "max_length": null,
+                "options": []
+              }
+            ]
+          }
+        },
+        {
+          "id": "run_pipeline",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 334,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 334,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "runPipeline",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "runPipeline",
+            "tool_label": "runPipeline",
+            "tool_description": "A Stock Python Core operation: runPipeline",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "{{#start_node.date#}}"
+              }
+            }
+          }
+        },
+        {
+          "id": "get_daily_report",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 638,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 638,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "tool",
+            "title": "getDailyReport",
+            "desc": "Calls the external Python Core through the imported OpenAPI Custom Tool.",
+            "selected": false,
+            "provider_id": "A Stock AI Research System 5.0 API",
+            "provider_name": "A Stock AI Research System 5.0 API",
+            "provider_type": "api",
+            "tool_name": "getDailyReport",
+            "tool_label": "getDailyReport",
+            "tool_description": "A Stock Python Core operation: getDailyReport",
+            "tool_node_version": "2",
+            "tool_configurations": {},
+            "tool_parameters": {
+              "date": {
+                "type": "mixed",
+                "value": "{{#start_node.date#}}"
+              }
+            }
+          }
+        },
+        {
+          "id": "compose_daily_summary",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 942,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 942,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "llm",
+            "title": "compose_daily_summary",
+            "desc": "",
+            "selected": false,
+            "model": {
+              "provider": "deepseek",
+              "name": "deepseek-v4-flash",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.2
+              }
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "# Daily Report Composer Prompt\n\n你是 A股AI投研系统5.0 的日报整理器。只根据输入的 `pipeline_result` 和 `daily_report` 汇总，不得编造外部行情或新增交易规则。\n\n如果 Dify 流程中加入 Hermes Agent 交互工具，Hermes 只能用于整理用户本机上下文、补充人工确认、理解截图或生成待办。日报的市场状态、仓位上限、候选和 Guard 状态仍必须以 Python Core 返回值为准。\n\n必须输出：\n- 市场状态：emotion、chaos、quant_dominance、narrative_heat。\n- 仓位上限：使用系统返回的 `max_position_pct`。\n- 强制空仓/降风险原因：如无则写“无”。\n- 持仓监控：只使用 `open_sim_trades`。\n- 次日候选：只列 PM Agent 返回的 `buy_candidate`；被拒绝项只在用户追问时解释。\n- Guard 状态：正常或列出告警。\n\n硬性边界：\n- 仅供学习研究参考，不构成投资建议。\n- 只能说“模拟盘”，不得说真实下单或实盘委托。\n- PM Agent 是唯一决策节点；你只是整理输出。\n- Hermes、网页抓取、Google、Jina、GitHub、代码解释器或数据分析工具的输出只能作为“补充背景”，不得覆盖 PM/Risk/Guard 结论。\n\n输出格式：\n```md\n# A股日报 {date}\n## 结论\n## 市场状态\n## 仓位上限\n## 持仓监控\n## 次日候选\n## Guard状态\n## 纪律提醒\n```\n"
+              },
+              {
+                "role": "user",
+                "text": "请根据上游工具返回结果生成最终报告。\n\n输入变量：date={{#start_node.date#}}\n\n工具结果：\n\nrunPipeline: {{#run_pipeline.text#}}\ngetDailyReport: {{#get_daily_report.text#}}"
+              }
+            ],
+            "vision": {
+              "enabled": false,
+              "configs": {
+                "variable_selector": []
+              }
+            },
+            "memory": {
+              "enabled": false,
+              "window": {
+                "enabled": false,
+                "size": 50
+              }
+            },
+            "context": {
+              "enabled": false,
+              "variable_selector": []
+            },
+            "structured_output": {
+              "enabled": false
+            },
+            "retry_config": {
+              "enabled": false,
+              "max_retries": 1,
+              "retry_interval": 1000,
+              "exponential_backoff": {
+                "enabled": false,
+                "multiplier": 2,
+                "max_interval": 10000
+              }
+            }
+          }
+        },
+        {
+          "id": "end_node",
+          "type": "custom",
+          "height": 90,
+          "width": 244,
+          "position": {
+            "x": 1246,
+            "y": 227
+          },
+          "positionAbsolute": {
+            "x": 1246,
+            "y": 227
+          },
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "selected": false,
+          "data": {
+            "type": "end",
+            "title": "End",
+            "desc": "",
+            "selected": false,
+            "outputs": [
+              {
+                "variable": "answer_markdown",
+                "value_selector": [
+                  "compose_daily_summary",
+                  "text"
+                ],
+                "value_type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "start_node-to-run_pipeline",
+          "source": "start_node",
+          "sourceHandle": "source",
+          "target": "run_pipeline",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "start",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "run_pipeline-to-get_daily_report",
+          "source": "run_pipeline",
+          "sourceHandle": "source",
+          "target": "get_daily_report",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "tool"
+          }
+        },
+        {
+          "id": "get_daily_report-to-compose_daily_summary",
+          "source": "get_daily_report",
+          "sourceHandle": "source",
+          "target": "compose_daily_summary",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "tool",
+            "targetType": "llm"
+          }
+        },
+        {
+          "id": "compose_daily_summary-to-end_node",
+          "source": "compose_daily_summary",
+          "sourceHandle": "source",
+          "target": "end_node",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0,
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "end"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 0.7
+      }
+    }
+  },
+  "dependencies": []
+}

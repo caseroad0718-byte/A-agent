@@ -1,0 +1,205 @@
+{
+  "schema": "a_stock_dify_workflow_node_specs.v1",
+  "shared": {
+    "model_strategy": {
+      "strong": "deepseek-v4-pro",
+      "fast": "deepseek-v4-flash",
+      "rule": "PM Console, Research, Monthly Review and Quarterly Meta-Learning use strong; daily formatting and simple status summaries may use fast."
+    },
+    "knowledge_base": "a_stock_research_kb",
+    "custom_tool": "A Stock AI Research System 5.0 API",
+    "native_dify_tools": {
+      "Hermes Agent 交互": {
+        "role": "本机文本、skill、图片、上下文会话和人工确认桥接",
+        "allowed_in": ["PM Console", "Weekly Deep Research Brief", "Monthly Review Composer", "Quarterly Meta-Learning Review"],
+        "forbidden": ["替代 PM Agent 决策", "覆盖 Risk/Guard 一票否决", "直接写入真实交易"]
+      },
+      "Dify 知识库": "检索 a_stock_research_kb 的方案、SOP、参数、日报和复盘材料",
+      "网页抓取": "抓取公开背景，输出必须标注为待验证",
+      "Google": "搜索公开背景，输出必须标注为待验证",
+      "Jina AI": "搜索底座和网页抽取，输出必须标注为待验证",
+      "GitHub": "读取仓库、脚本、参数和运行记录",
+      "代码解释器": "仅做轻量格式化",
+      "数据分析": "解释已导出的表格/报告，不替代 Python Core",
+      "时间": "确认北京时间和调度"
+    },
+    "safety_rules": [
+      "仅供学习研究参考，不构成投资建议",
+      "只允许写模拟盘记录，不允许真实下单",
+      "PM Agent 是唯一决策节点",
+      "D级风险、一票否决、强制空仓、EV<=8时不得建议买入"
+    ]
+  },
+  "workflows": [
+    {
+      "name": "Daily Report Composer",
+      "purpose": "交易日 19:00 日报摘要与次日候选检查。",
+      "start_inputs": [
+        {"name": "date", "type": "text", "default": "today", "required": false}
+      ],
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "outputs": ["date"]
+        },
+        {
+          "id": "run_pipeline",
+          "type": "tool",
+          "tool_operation_id": "runPipeline",
+          "inputs": {"date": "{{start.date}}"},
+          "outputs": ["pipeline_result"]
+        },
+        {
+          "id": "get_daily_report",
+          "type": "tool",
+          "tool_operation_id": "getDailyReport",
+          "inputs": {"date": "{{start.date}}"},
+          "outputs": ["daily_report"]
+        },
+        {
+          "id": "compose_daily_summary",
+          "type": "llm",
+          "model": "deepseek-v4-flash",
+          "model_profile": "fast",
+          "prompt_file": "dify/workflow_prompts/daily_report_composer.md",
+          "inputs": {
+            "pipeline_result": "{{run_pipeline.pipeline_result}}",
+            "daily_report": "{{get_daily_report.daily_report}}"
+          },
+          "outputs": ["answer_markdown"]
+        },
+        {
+          "id": "answer",
+          "type": "answer",
+          "input": "{{compose_daily_summary.answer_markdown}}"
+        }
+      ],
+      "acceptance": [
+        "输出市场状态、仓位上限、持仓监控、候选、Guard状态",
+        "出现所有交易动作时必须写明模拟盘",
+        "不得追加 PDF 方案之外的新买入规则"
+      ]
+    },
+    {
+      "name": "Weekly Deep Research Brief",
+      "purpose": "周末产业深度、反向扫描和被忽视机会备忘。",
+      "start_inputs": [
+        {"name": "theme", "type": "text", "default": "", "required": false},
+        {"name": "watchlist_scope", "type": "text", "default": "watchlist", "required": false}
+      ],
+      "nodes": [
+        {"id": "start", "type": "start", "outputs": ["theme", "watchlist_scope"]},
+        {
+          "id": "knowledge_retrieval",
+          "type": "knowledge_retrieval",
+          "knowledge_base": "a_stock_research_kb",
+          "query": "{{start.theme}} {{start.watchlist_scope}} 产业深度 反向扫描 被忽视机会",
+          "outputs": ["knowledge_context"]
+        },
+        {
+          "id": "run_research",
+          "type": "tool",
+          "tool_operation_id": "runResearch",
+          "inputs": {"date": "today"},
+          "outputs": ["research_result"]
+        },
+        {
+          "id": "compose_weekly_brief",
+          "type": "llm",
+          "model": "deepseek-v4-pro",
+          "model_profile": "strong",
+          "prompt_file": "dify/workflow_prompts/weekly_deep_research_brief.md",
+          "inputs": {
+            "theme": "{{start.theme}}",
+            "watchlist_scope": "{{start.watchlist_scope}}",
+            "knowledge_context": "{{knowledge_retrieval.knowledge_context}}",
+            "research_result": "{{run_research.research_result}}"
+          },
+          "outputs": ["answer_markdown"]
+        },
+        {"id": "answer", "type": "answer", "input": "{{compose_weekly_brief.answer_markdown}}"}
+      ],
+      "acceptance": [
+        "输出研究备忘而非交易指令",
+        "必须标注叙事拥挤度与不确定性",
+        "不得绕过 PM Agent 直接给买入建议"
+      ]
+    },
+    {
+      "name": "Monthly Review Composer",
+      "purpose": "月度模拟盘复盘与纪律执行总结。",
+      "start_inputs": [
+        {"name": "period", "type": "text", "default": "all_closed_trades", "required": false}
+      ],
+      "nodes": [
+        {"id": "start", "type": "start", "outputs": ["period"]},
+        {
+          "id": "get_review",
+          "type": "tool",
+          "tool_operation_id": "getReview",
+          "inputs": {"period": "{{start.period}}"},
+          "outputs": ["review_result"]
+        },
+        {
+          "id": "compose_monthly_review",
+          "type": "llm",
+          "model": "deepseek-v4-pro",
+          "model_profile": "strong",
+          "prompt_file": "dify/workflow_prompts/monthly_review_composer.md",
+          "inputs": {"review_result": "{{get_review.review_result}}"},
+          "outputs": ["answer_markdown"]
+        },
+        {"id": "answer", "type": "answer", "input": "{{compose_monthly_review.answer_markdown}}"}
+      ],
+      "acceptance": [
+        "输出胜率、平均收益、最大亏损、纪律执行",
+        "必须提示样本不足时不能过拟合",
+        "不允许选择性忽略失败交易"
+      ]
+    },
+    {
+      "name": "Quarterly Meta-Learning Review",
+      "purpose": "季度权重与市场体制复核，体制层必须人工确认。",
+      "start_inputs": [
+        {"name": "date", "type": "text", "default": "today", "required": false},
+        {"name": "period", "type": "text", "default": "all_closed_trades", "required": false}
+      ],
+      "nodes": [
+        {"id": "start", "type": "start", "outputs": ["date", "period"]},
+        {
+          "id": "run_pipeline",
+          "type": "tool",
+          "tool_operation_id": "runPipeline",
+          "inputs": {"date": "{{start.date}}"},
+          "outputs": ["pipeline_result"]
+        },
+        {
+          "id": "get_review",
+          "type": "tool",
+          "tool_operation_id": "getReview",
+          "inputs": {"period": "{{start.period}}"},
+          "outputs": ["review_result"]
+        },
+        {
+          "id": "compose_meta_review",
+          "type": "llm",
+          "model": "deepseek-v4-pro",
+          "model_profile": "strong",
+          "prompt_file": "dify/workflow_prompts/quarterly_meta_learning_review.md",
+          "inputs": {
+            "pipeline_result": "{{run_pipeline.pipeline_result}}",
+            "review_result": "{{get_review.review_result}}"
+          },
+          "outputs": ["answer_markdown"]
+        },
+        {"id": "answer", "type": "answer", "input": "{{compose_meta_review.answer_markdown}}"}
+      ],
+      "acceptance": [
+        "区分信号层、风格层、体制层",
+        "样本不足或新旧胜率差小于5%时保持旧参数",
+        "体制层必须要求人工确认"
+      ]
+    }
+  ]
+}
