@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import threading
+import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -16,6 +18,54 @@ from core.hermes_bridge import hermes_available, hermes_observe
 from core.reporting import build_daily_report, write_daily_report
 from core.settings import get_settings
 from main_pipeline import resolve_date, run_pipeline
+
+
+class PipelineJobStore:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._jobs: dict[str, dict[str, Any]] = {}
+
+    def get(self, run_date: str) -> dict[str, Any] | None:
+        with self._lock:
+            job = self._jobs.get(run_date)
+            return dict(job) if job else None
+
+    def start(self, run_date: str, db_path: str) -> dict[str, Any]:
+        with self._lock:
+            existing = self._jobs.get(run_date)
+            if existing and existing.get("status") in {"queued", "running"}:
+                return dict(existing)
+            job = {
+                "run_date": run_date,
+                "status": "queued",
+                "started_at": utc_now(),
+                "finished_at": None,
+                "result": None,
+                "error": None,
+            }
+            self._jobs[run_date] = job
+
+        def worker() -> None:
+            self.update(run_date, status="running")
+            try:
+                result = run_pipeline(run_date, db_path=db_path)
+                self.update(run_date, status="completed", finished_at=utc_now(), result=result, error=None)
+            except Exception as exc:  # noqa: BLE001
+                self.update(
+                    run_date,
+                    status="failed",
+                    finished_at=utc_now(),
+                    error={"message": str(exc), "traceback": traceback.format_exc(limit=5)},
+                )
+
+        thread = threading.Thread(target=worker, name=f"pipeline-{run_date}", daemon=True)
+        thread.start()
+        return self.get(run_date) or job
+
+    def update(self, run_date: str, **values: Any) -> None:
+        with self._lock:
+            job = self._jobs.setdefault(run_date, {"run_date": run_date})
+            job.update(values)
 
 
 def _json_body(handler: BaseHTTPRequestHandler) -> dict[str, Any]:
@@ -33,6 +83,9 @@ class AStockHandler(BaseHTTPRequestHandler):
 
     def _db(self) -> Database:
         return Database(self._settings().db_path)
+
+    def _jobs(self) -> PipelineJobStore:
+        return self.server.pipeline_jobs  # type: ignore[attr-defined]
 
     def _send(self, status: int, payload: dict[str, Any]) -> None:
         data = dumps(payload).encode("utf-8")
@@ -177,8 +230,20 @@ class AStockHandler(BaseHTTPRequestHandler):
         db = self._db()
         if parsed.path == "/pipeline/run":
             run_date = resolve_date(body.get("date", "today"))
-            result = run_pipeline(run_date, db_path=str(self._settings().db_path))
-            self._send(200, result)
+            if bool(body.get("wait", False)):
+                result = run_pipeline(run_date, db_path=str(self._settings().db_path))
+                self._send(200, result)
+                return
+            job = self._jobs().start(run_date, db_path=str(self._settings().db_path))
+            self._send(
+                202,
+                {
+                    "status": job.get("status", "queued"),
+                    "run_date": run_date,
+                    "message": "Pipeline accepted and is running in the background. Query getDailyReport or getGuardStatus after 1-3 minutes.",
+                    "job": job,
+                },
+            )
             return
         if parsed.path == "/decisions/approve":
             run_date = resolve_date(body.get("date", "today"))
@@ -279,6 +344,7 @@ def main() -> None:
     settings = get_settings(db_path=args.db_path)
     server = ThreadingHTTPServer((args.host, args.port), AStockHandler)
     server.settings = settings  # type: ignore[attr-defined]
+    server.pipeline_jobs = PipelineJobStore()  # type: ignore[attr-defined]
     print(f"Serving on http://{args.host}:{args.port}")
     server.serve_forever()
 
