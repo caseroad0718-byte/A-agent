@@ -176,11 +176,13 @@ class AStockHandler(BaseHTTPRequestHandler):
         query = parse_qs(parsed.query)
         if parsed.path.startswith("/reports/daily/"):
             run_date = parsed.path.rsplit("/", 1)[-1]
+            run_date = resolve_date(run_date)
             report = build_daily_report(db, self._settings(), run_date)
             self._send(200, report)
             return
         if parsed.path.startswith("/market-state/"):
             run_date = parsed.path.rsplit("/", 1)[-1]
+            run_date = resolve_date(run_date)
             row = db.fetch_one("SELECT * FROM market_state WHERE run_date = ?", (run_date,))
             self._send(
                 200,
