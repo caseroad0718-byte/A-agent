@@ -26,7 +26,11 @@ paths:
   /pipeline/run:
     post:
       operationId: runPipeline
-      summary: Run the full 9-Agent daily pipeline for a date.
+      summary: Start the full 9-Agent daily pipeline for a date.
+      description: >
+        By default this starts the pipeline in the background and returns quickly,
+        which avoids Dify tool-call timeouts on free/slow hosts. Pass wait=true
+        only for local tests or trusted callers that can wait several minutes.
       requestBody:
         required: false
         content:
@@ -38,9 +42,19 @@ paths:
                   type: string
                   description: YYYY-MM-DD or today.
                   default: today
+                wait:
+                  type: boolean
+                  description: Run synchronously and wait for the full pipeline result.
+                  default: false
       responses:
+        "202":
+          description: Pipeline accepted and running in the background.
+          content:
+            application/json:
+              schema:
+                type: object
         "200":
-          description: Pipeline result.
+          description: Pipeline result when wait=true.
           content:
             application/json:
               schema:
