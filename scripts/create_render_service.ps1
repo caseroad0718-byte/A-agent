@@ -82,15 +82,17 @@ $body = @{
     ownerId = $OwnerId
     repo = $RepoUrl
     branch = $Branch
+    autoDeploy = "yes"
+    envVars = $envVars
     serviceDetails = @{
         runtime = "python"
         plan = "starter"
         region = "oregon"
-        buildCommand = "pip install -r requirements.txt"
-        startCommand = "python api_server.py --host 0.0.0.0 --port `$PORT"
-        autoDeploy = "yes"
         env = "python"
-        envVars = $envVars
+        envSpecificDetails = @{
+            buildCommand = "pip install -r requirements.txt"
+            startCommand = "python api_server.py --host 0.0.0.0 --port `$PORT"
+        }
     }
 } | ConvertTo-Json -Depth 10
 
