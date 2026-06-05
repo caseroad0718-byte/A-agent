@@ -47,14 +47,8 @@ paths:
                   description: Run synchronously and wait for the full pipeline result.
                   default: false
       responses:
-        "202":
-          description: Pipeline accepted and running in the background.
-          content:
-            application/json:
-              schema:
-                type: object
         "200":
-          description: Pipeline result when wait=true.
+          description: Pipeline accepted in background by default, or full result when wait=true.
           content:
             application/json:
               schema:
