@@ -16,7 +16,15 @@
 - Public smoke test passed against the current temporary Cloudflare URL.
 - Git repository is initialized locally and committed.
 - Git remote is configured as `https://github.com/caseroad0718-byte/A-agent.git`.
-- Latest local commit: `a4d4fde Add secure GitHub and Render deployment scripts`.
+- GitHub repository has been pushed and is available at `https://github.com/caseroad0718-byte/A-agent`.
+- Render permanent backend has been created:
+  - Service: `a-stock-system`
+  - Service id: `srv-d8h5bej7uimc73cj1jsg`
+  - Dashboard: `https://dashboard.render.com/web/srv-d8h5bej7uimc73cj1jsg`
+  - Public URL: `https://a-stock-system.onrender.com`
+- Latest verified backend smoke test against Render: `status=ok` for health, Dify manifest, pipeline run, daily report, candidates, review, and Guard.
+- Latest local commit: `95b03d4 Allow longer Dify smoke test timeout`.
+- Latest GitHub API update commit for `scripts/smoke_dify_tool_flow.py`: `39352950c39efb353a418a3e1c37529ebd63f1c7`.
 - Production deployment helper scripts are present:
   - `scripts/push_to_github_with_token.ps1`
   - `scripts/create_render_service.ps1`
@@ -27,12 +35,20 @@
 https://titles-broken-authorized-coaching.trycloudflare.com
 ```
 
-This URL is a Cloudflare quick tunnel. It is useful for short tests, but it is not a production endpoint and may expire. Final production setup should use Render, Railway, Fly.io, Cloudflare named tunnel, or another permanent HTTPS host.
+This URL is a Cloudflare quick tunnel. It is useful for short tests, but it is not a production endpoint and may expire.
 
-Production cutover is intentionally blocked until the backend has a permanent HTTPS URL. Use:
+The permanent Render backend is now:
+
+```text
+https://a-stock-system.onrender.com
+```
+
+Render is currently on the free plan. Occasional cold-start/platform 404 responses were observed during verification, so smoke checks use retries. For long-running daily production use, upgrade Render or move to a more stable paid host.
+
+Production cutover now only requires a fresh Dify Console headers file. Use:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\production_cutover.ps1 -PublicBaseUrl https://你的永久公网域名 -HeadersFile $env:TEMP\dify_headers.txt -ApiKey <A_STOCK_API_KEY>
+powershell -ExecutionPolicy Bypass -File scripts\production_cutover.ps1 -PublicBaseUrl https://a-stock-system.onrender.com -HeadersFile $env:TEMP\dify_headers.txt -ApiKey (Get-Content -Raw $env:TEMP\a_stock_api_key.txt).Trim()
 ```
 
 Platform-specific deployment steps are in `dify/PERMANENT_DEPLOYMENT_RUNBOOK.md`.
@@ -54,7 +70,7 @@ Optionally add the DeepSeek API key so the deployed Research/LLM path can call t
 Set-Content -Path "$env:TEMP\deepseek_api_key.txt" -Value "你的DeepSeekKey"
 ```
 
-Then push the local repository and create the Render service:
+The repository and Render service have already been created. If you need to repeat from scratch, push the local repository and create the Render service:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\push_to_github_with_token.ps1
@@ -85,8 +101,8 @@ After Render returns a permanent HTTPS service URL, run the production cutover c
 ```powershell
 python scripts\verify_dify_console_assets.py --headers-file $env:TEMP\dify_headers.txt --update-cloud-status
 $env:DIFY_APP_API_KEY='<your PM Console App API key>'; python scripts\accept_dify_app_api.py; Remove-Item Env:DIFY_APP_API_KEY
-python scripts\smoke_dify_tool_flow.py --base-url https://titles-broken-authorized-coaching.trycloudflare.com --date today
-python scripts\final_acceptance.py --base-url https://titles-broken-authorized-coaching.trycloudflare.com --date today --skip-dify-api
+python scripts\smoke_dify_tool_flow.py --base-url https://a-stock-system.onrender.com --token (Get-Content -Raw $env:TEMP\a_stock_api_key.txt).Trim() --date today --timeout 300 --retries 5
+python scripts\final_acceptance.py --base-url https://a-stock-system.onrender.com --token (Get-Content -Raw $env:TEMP\a_stock_api_key.txt).Trim() --date today --skip-dify-api
 ```
 
 ## Restart Local Temporary Tunnel

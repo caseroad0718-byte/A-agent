@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
 import time
@@ -54,7 +55,7 @@ def request_json(
             last_exc = exc
             if exc.code not in {404, 429, 502, 503, 504} or attempt == retries:
                 raise
-        except (urllib.error.URLError, TimeoutError) as exc:
+        except (urllib.error.URLError, TimeoutError, http.client.RemoteDisconnected) as exc:
             last_exc = exc
             if attempt == retries:
                 raise

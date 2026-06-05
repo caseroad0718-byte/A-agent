@@ -20,11 +20,11 @@
       "label": "Public Python Core health endpoint is reachable",
       "status": "passed",
       "evidence": {
-        "base_url": "https://titles-broken-authorized-coaching.trycloudflare.com",
+        "base_url": "https://a-stock-system.onrender.com",
         "health": {
           "auth_configured": true,
-          "deepseek_configured": false,
-          "hermes_bridge_available": true,
+          "deepseek_configured": true,
+          "hermes_bridge_available": false,
           "hermes_bridge_enabled": false,
           "mode": "simulation_only",
           "service": "a_stock_system",
@@ -38,8 +38,8 @@
       "label": "Public dynamic OpenAPI schema is reachable and host-resolved",
       "status": "passed",
       "evidence": {
-        "base_url": "https://titles-broken-authorized-coaching.trycloudflare.com",
-        "length": 10783
+        "base_url": "https://a-stock-system.onrender.com",
+        "length": 10759
       },
       "next_action": null
     },
