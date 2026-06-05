@@ -238,7 +238,7 @@ class AStockHandler(BaseHTTPRequestHandler):
                 return
             job = self._jobs().start(run_date, db_path=str(self._settings().db_path))
             self._send(
-                202,
+                200,
                 {
                     "status": job.get("status", "queued"),
                     "run_date": run_date,
