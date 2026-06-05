@@ -6,7 +6,7 @@ info:
     Dify Custom Tool schema for the external Python core. All write operations
     are simulation-only and require bearer authentication.
 servers:
-  - url: https://titles-broken-authorized-coaching.trycloudflare.com
+  - url: https://a-stock-system.onrender.com
     description: Replace with the HTTPS URL of your deployed Python service.
 security:
   - bearerAuth: []

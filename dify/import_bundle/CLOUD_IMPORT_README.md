@@ -3,7 +3,7 @@
 Generated for Python Core endpoint:
 
 ```text
-https://titles-broken-authorized-coaching.trycloudflare.com
+https://a-stock-system.onrender.com
 ```
 
 ## Files
@@ -24,7 +24,7 @@ https://titles-broken-authorized-coaching.trycloudflare.com
 4. Import the four workflow DSL skeletons, then bind their tool nodes to the Custom Tool if Dify marks any provider as unresolved.
 5. Bind every Knowledge Retrieval node with empty `dataset_ids` to `a_stock_research_kb`.
 6. Publish the PM Console and each workflow.
-7. Run `scripts/verify_dify_cloud_state.py --base-url https://titles-broken-authorized-coaching.trycloudflare.com`.
+7. Run `scripts/verify_dify_cloud_state.py --base-url https://a-stock-system.onrender.com`.
 
 ## Model Rule
 

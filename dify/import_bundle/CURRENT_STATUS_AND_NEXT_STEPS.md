@@ -14,6 +14,12 @@
 - Dify cloud verification: `10/10` passed.
 - PM Console App API acceptance: `5/5` passed.
 - Public smoke test passed against the current temporary Cloudflare URL.
+- Git repository is initialized locally and committed.
+- Git remote is configured as `https://github.com/caseroad0718-byte/A-agent.git`.
+- Latest local commit: `a4d4fde Add secure GitHub and Render deployment scripts`.
+- Production deployment helper scripts are present:
+  - `scripts/push_to_github_with_token.ps1`
+  - `scripts/create_render_service.ps1`
 
 ## Current Temporary Public URL
 
@@ -30,6 +36,38 @@ powershell -ExecutionPolicy Bypass -File scripts\production_cutover.ps1 -PublicB
 ```
 
 Platform-specific deployment steps are in `dify/PERMANENT_DEPLOYMENT_RUNBOOK.md`.
+
+## GitHub And Render Deployment Resume
+
+The permanent deployment is ready to continue after local temporary secret files are created. Do not commit these files.
+
+Create the required token files in PowerShell:
+
+```powershell
+Set-Content -Path "$env:TEMP\github_token.txt" -Value "你的GitHubToken"
+Set-Content -Path "$env:TEMP\render_token.txt" -Value "你的RenderToken"
+```
+
+Optionally add the DeepSeek API key so the deployed Research/LLM path can call the model:
+
+```powershell
+Set-Content -Path "$env:TEMP\deepseek_api_key.txt" -Value "你的DeepSeekKey"
+```
+
+Then push the local repository and create the Render service:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\push_to_github_with_token.ps1
+powershell -ExecutionPolicy Bypass -File scripts\create_render_service.ps1
+```
+
+The Render script reads:
+
+- `$env:TEMP\render_token.txt`
+- `$env:TEMP\a_stock_api_key.txt`, generating it if missing
+- `$env:TEMP\deepseek_api_key.txt`, if present
+
+After Render returns a permanent HTTPS service URL, run the production cutover command below.
 
 ## Verified Dify Cloud Assets
 

@@ -4,7 +4,7 @@
     "schema_file": "custom_tool_openapi.public.yaml",
     "console_payload_file": "custom_tool_console_payload.sample.json",
     "auth": "Bearer token from A_STOCK_API_KEY",
-    "dynamic_schema_url": "https://titles-broken-authorized-coaching.trycloudflare.com/openapi.yaml"
+    "dynamic_schema_url": "https://a-stock-system.onrender.com/openapi.yaml"
   },
   "model_provider": {
     "provider": "DeepSeek",

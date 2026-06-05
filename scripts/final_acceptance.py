@@ -52,6 +52,8 @@ def main() -> int:
     parser.add_argument("--date", default="today")
     parser.add_argument("--headers-file", default="")
     parser.add_argument("--proxy", default=os.environ.get("DIFY_CONSOLE_PROXY", ""))
+    parser.add_argument("--smoke-timeout", type=int, default=60)
+    parser.add_argument("--smoke-retries", type=int, default=3)
     parser.add_argument("--skip-pytest", action="store_true")
     parser.add_argument("--skip-dify-api", action="store_true")
     args = parser.parse_args()
@@ -94,10 +96,14 @@ def main() -> int:
             args.base_url,
             "--date",
             args.date,
+            "--timeout",
+            str(args.smoke_timeout),
+            "--retries",
+            str(args.smoke_retries),
         ]
         if args.token:
             command.extend(["--token", args.token])
-        results["backend_smoke"] = run(command, timeout=240)
+        results["backend_smoke"] = run(command, timeout=max(240, args.smoke_timeout * args.smoke_retries + 60))
         checks.append(status_from_command("backend_smoke", results["backend_smoke"]))
 
     if not args.skip_dify_api:
