@@ -99,7 +99,7 @@ def main() -> int:
             args.base_url,
             "/pipeline/run",
             token,
-            {"date": args.date},
+            {"date": args.date, "wait": True},
             timeout=args.timeout,
             retries=args.retries,
         ),
