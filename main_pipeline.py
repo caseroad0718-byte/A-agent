@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from agents.data_agent import DataAgent
@@ -18,9 +18,15 @@ from core.reporting import write_daily_report
 from core.settings import get_settings
 
 
+def latest_weekday(value: date) -> date:
+    while value.weekday() >= 5:
+        value -= timedelta(days=1)
+    return value
+
+
 def resolve_date(value: str) -> str:
     if value == "today":
-        return datetime.now(ZoneInfo("Asia/Shanghai")).date().isoformat()
+        return latest_weekday(datetime.now(ZoneInfo("Asia/Shanghai")).date()).isoformat()
     datetime.fromisoformat(value)
     return value
 
@@ -61,4 +67,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
