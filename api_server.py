@@ -123,6 +123,22 @@ class AStockHandler(BaseHTTPRequestHandler):
         self._send(401, {"error": "unauthorized"})
         return False
 
+    def _latest_available_date(self, db: Database, run_date: str) -> str:
+        row = db.fetch_one(
+            """
+            SELECT run_date
+            FROM (
+                SELECT run_date FROM market_state WHERE run_date <= ?
+                UNION
+                SELECT run_date FROM pm_plans WHERE run_date <= ?
+            )
+            ORDER BY run_date DESC
+            LIMIT 1
+            """,
+            (run_date, run_date),
+        )
+        return str(row["run_date"]) if row else run_date
+
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
         if parsed.path == "/openapi.yaml":
@@ -177,12 +193,14 @@ class AStockHandler(BaseHTTPRequestHandler):
         if parsed.path.startswith("/reports/daily/"):
             run_date = parsed.path.rsplit("/", 1)[-1]
             run_date = resolve_date(run_date)
+            run_date = self._latest_available_date(db, run_date)
             report = build_daily_report(db, self._settings(), run_date)
             self._send(200, report)
             return
         if parsed.path.startswith("/market-state/"):
             run_date = parsed.path.rsplit("/", 1)[-1]
             run_date = resolve_date(run_date)
+            run_date = self._latest_available_date(db, run_date)
             row = db.fetch_one("SELECT * FROM market_state WHERE run_date = ?", (run_date,))
             self._send(
                 200,
@@ -197,6 +215,7 @@ class AStockHandler(BaseHTTPRequestHandler):
         if parsed.path == "/candidates":
             run_date = query.get("date", ["today"])[0]
             run_date = resolve_date(run_date)
+            run_date = self._latest_available_date(db, run_date)
             min_ev = float(query.get("min_ev", ["0"])[0])
             allowed = set(query.get("risk_allowed", ["A,B"])[0].split(","))
             row = db.fetch_one("SELECT plan_json FROM pm_plans WHERE run_date = ?", (run_date,))
@@ -219,6 +238,7 @@ class AStockHandler(BaseHTTPRequestHandler):
         if parsed.path == "/guard/status":
             run_date = query.get("date", ["today"])[0]
             run_date = resolve_date(run_date)
+            run_date = self._latest_available_date(db, run_date)
             result = GuardAgent(db, self._settings()).run(run_date)
             self._send(200, result)
             return
