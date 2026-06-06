@@ -3,7 +3,15 @@ from pathlib import Path
 from core.db import Database
 from core.reporting import build_daily_report
 from core.settings import get_settings
-from main_pipeline import run_pipeline
+from datetime import date
+
+from main_pipeline import latest_weekday, run_pipeline
+
+
+def test_latest_weekday_rolls_weekend_back_to_friday():
+    assert latest_weekday(date(2026, 6, 6)).isoformat() == "2026-06-05"
+    assert latest_weekday(date(2026, 6, 7)).isoformat() == "2026-06-05"
+    assert latest_weekday(date(2026, 6, 8)).isoformat() == "2026-06-08"
 
 
 def test_pipeline_generates_daily_report(tmp_path, monkeypatch):
